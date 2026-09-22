@@ -1,0 +1,3 @@
+Certified beta interval:
+  0.5979874356654401 < beta < 0.5979874356654403
+Independent certificate checker: all six required blocks passed
