@@ -148,3 +148,153 @@ def ceil_cstar(m: int) -> int:
 
 
 def logarithmic_shift(N: int) -> int:
+    if N < 2 or N & (N - 1):
+        raise ValueError("N must be a power of two, at least 2")
+    exponent, power = 0, 1
+    while power * 5 <= N:
+        exponent += 1
+        power *= 5
+    return max(0, exponent - 3)
+
+
+def profile(N: int) -> Tuple[List[int], List[int]]:
+    shift = logarithmic_shift(N)
+    n = N - 1
+    a: List[int] = []
+    R: List[int] = []
+    for i in range(N):
+        ai = max(0, floor_alpha(N + i) - 2 * i + shift)
+        ri = n - i - ai
+        if not (0 <= ai <= n - i and 0 <= ri <= n - i):
+            raise AssertionError(("invalid profile", N, i, ai, ri))
+        a.append(ai)
+        R.append(ri)
+    for i in range(N - 1):
+        if a[i] - a[i + 1] not in (0, 1, 2):
+            raise AssertionError(("invalid drop", N, i, a[i], a[i + 1]))
+    return a, R
+
+
+def folded_weights(N: int, R: Sequence[int]) -> List[Dict[int, int]]:
+    """Signed numerators of W_i, with common denominator 2^(N-1)."""
+    n = N - 1
+    positive = [comb(n, t) for t in range(n + 1)]
+    sign = 1
+    output: List[Dict[int, int]] = []
+
+    for i in range(N):
+        if not positive:
+            output.append({})
+            continue
+        degree = max(j for j, value in enumerate(positive) if value)
+        Ri = R[i]
+        if degree <= Ri:
+            output.append(
+                {t: sign * value for t, value in enumerate(positive) if value}
+            )
+            positive = []
+            continue
+
+        tail = sum(positive[Ri:])
+        digit = {t: sign * positive[t] for t in range(Ri) if positive[t]}
+        if tail:
+            digit[Ri] = sign * tail
+        output.append(digit)
+
+        next_positive = [0] * degree
+        suffix = 0
+        for s in range(degree - 1, Ri - 1, -1):
+            suffix += positive[s + 1]
+            next_positive[s] = 2 * suffix
+        positive = next_positive
+        sign = -sign
+
+    if positive:
+        raise AssertionError(("fold did not terminate", N))
+    return output
+
+
+def multiply(a: Sequence[int], b: Sequence[int]) -> List[int]:
+    out = [0] * (len(a) + len(b) - 1)
+    for i, av in enumerate(a):
+        if av:
+            for j, bv in enumerate(b):
+                if bv:
+                    out[i + j] += av * bv
+    return out
+
+
+def parity_character_polynomial(R: int, t: int) -> List[int]:
+    """Coefficients of (1-x)^t (1+x)^(R-t), by its differential recurrence."""
+    if not 0 <= t <= R:
+        raise ValueError("require 0 <= t <= R")
+    result = [1]
+    previous = 0
+    for r in range(R):
+        numerator = (R - 2*t) * result[-1] - (R-r+1) * previous
+        value, remainder = divmod(numerator, r+1)
+        if remainder:
+            raise AssertionError(("nonintegral character recurrence", R,t,r))
+        previous = result[-1]
+        result.append(value)
+    return result
+
+
+def real_center(
+    N: int, a: Sequence[int], R: Sequence[int]
+) -> Tuple[List[List[Fraction]], List[Dict[int, int]]]:
+    denominator = 2 ** (N - 1)
+    weights = folded_weights(N, R)
+    center: List[List[Fraction]] = []
+    for i, (Ri, digit) in enumerate(zip(R, weights)):
+        e = [0] * (Ri + 1)
+        for t, numerator in digit.items():
+            character = parity_character_polynomial(Ri, t)
+            for r, coefficient in enumerate(character):
+                e[r] += numerator * coefficient
+        # Substitute x=-z.
+        center.append(
+            [Fraction((-1) ** (i + r) * coefficient, denominator) for r, coefficient in enumerate(e)]
+        )
+    return center, weights
+
+
+def nearest_parity_integer(x: Fraction, parity: int, boundary: bool = False) -> int:
+    if boundary:
+        candidates = (-1, 1)
+    else:
+        floor_x = x.numerator // x.denominator
+        candidates = tuple(j for j in range(floor_x - 4, floor_x + 5) if j % 2 == parity)
+    return min(candidates, key=lambda j: (abs(Fraction(j) - x), abs(j), j))
+
+
+def integral_rounding(
+    N: int,
+    a: Sequence[int],
+    R: Sequence[int],
+    u: Sequence[Sequence[Fraction]],
+) -> Tuple[List[List[int]], Fraction]:
+    """Construct the exact parity-correct packet coefficients."""
+    delta: List[List[Fraction]] = [
+        [Fraction(0)] * (R[i] + 1) for i in range(N - 1)
+    ]
+    f: List[List[int]] = [[0] * (R[i] + 1) for i in range(N)]
+    max_error = Fraction(0)
+
+    def predecessor(i: int, r: int) -> Fraction:
+        if i == 0:
+            return Fraction(0)
+        s = a[i - 1] - a[i]
+        value = Fraction(0)
+        for j in range(s + 1):
+            parent_r = r + 1 - j
+            if 1 <= parent_r <= R[i - 1]:
+                value += (-1) ** j * comb(s, j) * delta[i - 1][parent_r]
+        return value
+
+    for i in range(N):
+        # Lower packet boundary.  It has already been forced by delta[i-1,1].
+        lower = u[i][0] - predecessor(i, 0)
+        if lower.denominator != 1 or abs(lower) != 1:
+            raise AssertionError(("lower boundary", N, i, lower))
+        f[i][0] = int(lower)
