@@ -1,0 +1,34 @@
+name: Refresh manuscript PDF
+
+on:
+  push:
+    branches: [references-and-history]
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends latexmk texlive-latex-extra texlive-fonts-recommended lmodern
+      - name: Compile manuscript
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error deterministic_von_neumann_fair_extractor.tex
+          if grep -E 'undefined|LaTeX Warning:|Overfull' deterministic_von_neumann_fair_extractor.log; then
+            exit 1
+          fi
+      - name: Commit refreshed PDF
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add deterministic_von_neumann_fair_extractor.pdf
+          git diff --cached --quiet && exit 0
+          git commit -m "Refresh compiled manuscript"
+          git push origin HEAD:references-and-history
