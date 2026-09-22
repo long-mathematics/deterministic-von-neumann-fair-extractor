@@ -52,6 +52,20 @@ The revised theorem strengthens the earlier ceiling bound in several directions:
 
 The paper does **not** claim unrestricted optimality among all globally fair extractors when imbalance may cancel between different dyadic blocks.
 
+## History and related work
+
+Elliot Glazer posed the time-limited problem on Puzzling Stack Exchange in August 2024, initially for a loaded six-sided die and with a bonus asking for the best linear efficiency constant:
+
+- [Elliot Glazer, “Extracting a fair coin flip from a biased die, with a time limit”](https://puzzling.stackexchange.com/questions/127763/extracting-a-fair-coin-flip-from-a-biased-die-with-a-time-limit).
+
+In that discussion, `n` is the index of the first change, so `n=L+1` in the notation of this manuscript. Charles Wang's `2n-2` construction therefore gives `2L`, and his sketched binary refinement gives an asymptotic `7/4` coefficient. Stan Wagon later reported using the problem as a Macalester Problem of the Week; his posted answer describes recursive submissions and a formulaic construction found with Peter Winkler, giving `2n-3 = 2L-1` in the binary case.
+
+Glazer subsequently posed the coin version as **Problem 12592** in *The American Mathematical Monthly*, March 2026, asking for bounds `2n` and `max(2,2n-1)` with `n` now denoting the initial-run length:
+
+- Elliot Glazer, Problem 12592, in D. H. Ullman, D. J. Velleman, S. Wagon, and D. B. West, “Problems and Solutions,” *American Mathematical Monthly* **133** (2026), no. 3, 290–300, p. 291, [doi:10.1080/00029890.2026.2599721](https://doi.org/10.1080/00029890.2026.2599721).
+
+The manuscript also cites the classical biased-source extraction literature of von Neumann, Hoeffding–Simons, Elias, Stout–Warren, Peres, Juels–Jakobsson–Shriver–Hillyer, and Pae–Loui. Those works largely optimize expected source cost, block efficiency, entropy efficiency, or related random-number-generation criteria; the present paper instead studies a pathwise worst-case deadline indexed by the observed initial-run length.
+
 ## Reproducible exact checks
 
 Python 3.10+ is sufficient; the verification code uses only the standard library. Do not use Python's `-O` flag because assertions are part of the checker.
