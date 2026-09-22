@@ -448,3 +448,135 @@ def verify_block(N: int) -> Tuple[int, int, Fraction, int, Fraction]:
         if i:
             maximum_positive_norm = max(maximum_positive_norm,
                                         Fraction(norm_numerator,denominator))
+        if i and digit:
+            mass_numerator = 2**i * sum(comb(N-1,x)*comb(x-R[i-1],i)
+                                       for x in range(R[i-1]+i,N))
+            if mass_numerator != norm_numerator:
+                raise AssertionError(("independent folded mass formula",N,i))
+    if N >= 128 and maximum_positive_norm >= Fraction(1,2):
+        raise AssertionError(("positive-level half bound",N))
+
+    integer_center = []
+    for row in u:
+        converted=[]
+        for c in row:
+            value=c*denominator
+            if value.denominator != 1:
+                raise AssertionError("unexpected center denominator")
+            converted.append(value.numerator)
+        integer_center.append(converted)
+    polynomial_identity(N,a,integer_center,denominator)
+
+    f, max_error = integral_rounding(N, a, R, u)
+    verify_identity(N, a, f)
+
+    sites = 0
+    minimum_interior_margin = None
+    for i in range(N):
+        for r, coefficient in enumerate(f[i]):
+            Q = comb(R[i], r)
+            sites += 1
+            assert coefficient % 2 == Q % 2
+            assert abs(coefficient) <= Q
+            if 0 < r < R[i]:
+                margin = Q - abs(coefficient)
+                minimum_interior_margin = (
+                    margin
+                    if minimum_interior_margin is None
+                    else min(minimum_interior_margin, margin)
+                )
+
+        n_level = N + i
+        stopping = 2 * N - a[i]
+        deadline = min(2*N,ceil_cstar(n_level)-logarithmic_shift(N))
+        if stopping != deadline:
+            raise AssertionError(("shifted stopping",N,i,stopping,deadline))
+
+    if N >= 128 and max_error > 5:
+        raise AssertionError(("five-unit bound",N))
+    if N in SMALL_BLOCKS:
+        block = dict(N=N, shift=logarithmic_shift(N), a=a, R=R, f=f)
+        certificate_check(block)
+        CERTIFICATES.append(block)
+    first_zero = next(i for i, value in enumerate(a) if value == 0)
+    return (
+        first_zero,
+        sites,
+        max_error,
+        0 if minimum_interior_margin is None else minimum_interior_margin,
+        maximum_positive_norm,
+    )
+
+
+def supplementary_checks() -> None:
+    count=0
+    for R in range(41):
+        for t in range(R+1):
+            direct=multiply([(-1)**j*comb(t,j) for j in range(t+1)],
+                            [comb(R-t,j) for j in range(R-t+1)])
+            assert parity_character_polynomial(R,t)==direct
+            count+=1
+    print(f"Independent character checks: {count} exact polynomial comparisons")
+    for m in range(201):
+        modal=comb(m,m//2)
+        assert (m+1)*modal*modal <= 4**m
+    print("Fair-binomial modal square bound: m=0,...,200 checked exactly")
+    assert Fraction(3250,121) < 27
+    assert Fraction(27,125) < Fraction(1,4)
+    print("Rational constants: 3250/121 < 27 and 27/125 < 1/4")
+    for m in range(1,2049):
+        b=floor_beta(m)
+        lo,hi=BETA_INTERVAL
+        fl=(lo*m).numerator//(lo*m).denominator
+        fh=(hi*m).numerator//(hi*m).denominator
+        if fl != fh or b != fl:
+            raise AssertionError(("independent algebraic floor check",m))
+    print("Algebraic floors: m=1,...,2048 agree with the rigorous log enclosure")
+
+
+def main() -> None:
+    if not __debug__:
+        raise RuntimeError("Run without -O: assertions are part of this checker")
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--extra',type=int,nargs='*',default=[])
+    parser.add_argument('--export',type=Path)
+    parser.add_argument('--check-certificate',type=Path)
+    args=parser.parse_args()
+    print("Certified beta interval:")
+    print("  0.5979874356654401 < beta < 0.5979874356654403")
+    if args.check_certificate:
+        data=json.loads(args.check_certificate.read_text())
+        if data.get('format') != 'glazer-finite-blocks-v1':
+            raise ValueError('unknown certificate format')
+        if [b['N'] for b in data['blocks']] != list(SMALL_BLOCKS):
+            raise AssertionError('certificate omits required finite blocks')
+        if [f['m'] for f in data.get('critical_floors',[])] != list(range(1,128)):
+            raise AssertionError('missing finite floor witnesses')
+        for f in data['critical_floors']:
+            if f['beta_floor'] != floor_beta(f['m']):
+                raise AssertionError('incorrect algebraic floor witness')
+        for block in data['blocks']:
+            certificate_check(block)
+        print("Independent certificate checker: all six required blocks passed")
+        return
+    supplementary_checks()
+    print("\nN    shift h    sites    max|f-u|       min margin  max positive norm")
+    for N in dict.fromkeys((*SMALL_BLOCKS,*args.extra)):
+        h,sites,error,margin,maxnorm=verify_block(N)
+        print(f"{N:<4} {logarithmic_shift(N):<5} {h:<4} {sites:<8} "
+              f"{float(error):<14.10g} {margin:<11} {float(maxnorm):.12g}",flush=True)
+    if args.export:
+        args.export.parent.mkdir(parents=True,exist_ok=True)
+        data=dict(format='glazer-finite-blocks-v1',
+                  beta_enclosure=['5979874356654401/10000000000000000',
+                                  '5979874356654403/10000000000000000'],
+                  critical_floors=[dict(m=m,beta_floor=floor_beta(m))
+                                   for m in range(1,128)],
+                  blocks=CERTIFICATES)
+        args.export.write_text(json.dumps(data,separators=(',',':'))+'\n')
+        print(f"\nFinite certificate exported: {args.export.name}")
+    print("\nAll exact checks passed.")
+
+
+if __name__ == '__main__':
+    main()
