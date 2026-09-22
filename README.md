@@ -58,9 +58,20 @@ Elliot Glazer posed the time-limited problem on Puzzling Stack Exchange in Augus
 
 - [Elliot Glazer, “Extracting a fair coin flip from a biased die, with a time limit”](https://puzzling.stackexchange.com/questions/127763/extracting-a-fair-coin-flip-from-a-biased-die-with-a-time-limit).
 
-In that discussion, `n` is the index of the first change, so `n=L+1` in the notation of this manuscript. Charles Wang's valid `2n-2` construction therefore gives `2L`. He also proposed a recursive binary refinement with asymptotic coefficient `7/4`, but that refinement was subsequently found to be invalid; Wagon's later account records that Peter Winkler pointed out the error and that Wang acknowledged it. Stan Wagon later reported using the problem as a Macalester Problem of the Week; his posted answer describes recursive submissions and a formulaic construction found with Winkler, giving `2n-3 = 2L-1` in the binary case.
+There are two historical conventions for the parameter called `n`, differing by one. To avoid ambiguity, write `n_SE` for the Puzzling/Stack Exchange convention and `n_AMM` for the *Monthly* convention. In Glazer's Puzzling post and Wagon's answer, `n_SE` counts flips **through the first change**, so `n_SE=L+1`. In *Monthly* Problem 12592, the critical value `n_AMM` is the length of the maximal initial constant run, so `n_AMM=L`.
 
-Glazer subsequently posed the coin version as **Problem 12592** in *The American Mathematical Monthly*, March 2026, asking for bounds `2n` and `max(2,2n-1)` with `n` now denoting the initial-run length:
+Thus the conversion is:
+
+```text
+n_SE = L + 1
+n_AMM = L
+2 n_SE - 2 = 2L     = 2 n_AMM
+2 n_SE - 3 = 2L - 1 = 2 n_AMM - 1
+```
+
+Charles Wang proposed a `2 n_SE - 2` construction; Glazer pointed out a flaw in the initially posted version, and Wang edited the answer to make the recursion greedy. That corrected construction is valid and gives `2L`. Wang also proposed a recursive binary refinement with asymptotic coefficient `7/4`, but that refinement was later found to be invalid; Wagon's later account records that Peter Winkler pointed out the error and Wang acknowledged it. Stan Wagon later reported using the problem as a Macalester Problem of the Week; his posted answer describes recursive submissions and a formulaic construction found with Winkler, giving `2 n_SE - 3 = 2L - 1` in the binary case.
+
+Glazer subsequently posed the coin version as **Problem 12592** in *The American Mathematical Monthly*, March 2026. In that formulation `n_AMM=L`, so the requested bounds `2 n_AMM` and `max(2, 2 n_AMM - 1)` are exactly Wang's corrected `2L` bound and the Wagon--Winkler `2L-1` bound, expressed in the *Monthly* convention:
 
 - Elliot Glazer, Problem 12592, in D. H. Ullman, D. J. Velleman, S. Wagon, and D. B. West, “Problems and Solutions,” *American Mathematical Monthly* **133** (2026), no. 3, 290–300, p. 291, [doi:10.1080/00029890.2026.2599721](https://doi.org/10.1080/00029890.2026.2599721).
 
