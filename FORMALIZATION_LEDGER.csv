@@ -1,0 +1,36 @@
+<PARSED TEXT FOR SHEET: 1 / 1 TABS
+TAB NAME: FORMALIZATION_LEDGER.csv>index,kind,latex_label,printed_number,pdf_page,statement,status,scope_notes
+0,numbered_statement,thm:main,1.1,2.0,Critical bound with logarithmic saving,not formalized,Both stopping bounds; all nonconstant streams; every unknown bias; blockwise fairness.
+1,numbered_statement,lem:packet-realization,2.1,3.0,Packet realization,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+2,numbered_statement,lem:type-balance,2.2,4.0,Fixed-horizon type balance,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+3,numbered_statement,lem:profile,3.1,5.0,Saving and profile properties,not formalized,"All six numbered parts, including final-zero/overlap conditions."
+4,numbered_statement,lem:one-sign,4.1,6.0,One-sign recursion,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+5,numbered_statement,prop:real-center,4.2,7.0,Exact real center,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+6,numbered_statement,lem:mass-formula,5.1,7.0,Exact folded mass,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+7,numbered_statement,lem:atom-bound,5.2,8.0,An elementary binomial atom bound,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+8,numbered_statement,lem:tilted-mass,5.3,9.0,Tilted mass identity,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+9,numbered_statement,prop:digit-norms,5.4,9.0,Uniform half-norm bound,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+10,numbered_statement,lem:kernel-basis,6.1,10.0,Integral kernel basis,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+11,numbered_statement,lem:lattice-rounding,6.2,11.0,Five-unit lattice rounding,not formalized,"Explicit profile hypotheses, two boundary chains, final overlap, five-unit and two-unit bounds."
+12,numbered_statement,lem:swap,7.1,13.0,Swap estimate,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+13,numbered_statement,lem:level-zero-reserve,7.2,13.0,Level-zero reserve,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+14,numbered_statement,thm:large-block,8.1,14.0,Shifted block theorem,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+15,numbered_statement,prop:finite-certificate,9.1,14.0,Exact finite certificate,not formalized,Six concrete arrays plus algebraic floor witnesses; independent kernel-checkable checker required.
+16,numbered_statement,thm:obstruction,11.1,16.0,Evaluation obstruction for arbitrary signings,not formalized,Arbitrary deterministic signings; no complement-symmetry hypothesis.
+17,numbered_statement,cor:deadline,11.2,17.0,Exact deadline inequality,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+18,numbered_statement,cor:framework-optimal,11.3,17.0,Sharp leading coefficient,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+19,numbered_statement,cor:second-order,11.4,17.0,Restriction on second-order savings,not formalized,Uniform logarithmic-saving coefficient at most two; no assertion that the upper endpoint is attained.
+20,numbered_statement,lem:degree-window,12.1,18.0,Degree bound from separated run orientations,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+21,numbered_statement,lem:extrapolation,12.2,18.0,Elementary polynomial extrapolation,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+22,numbered_statement,thm:sublinear-horizon,12.3,18.0,Robust leading-coefficient obstruction,not formalized,Nonnegative integer horizon excess o(N); no global-extractor optimality claim.
+23,numbered_statement,thm:exchangeable,13.1,19.0,Exchangeable-source extension,not formalized,Infinite exchangeable binary source with finite initial run almost surely; block/type conditional fairness.
+24,numbered_statement,thm:dyadic-iff,14.1,20.0,Dyadic necessity and sufficiency,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+25,numbered_statement,cor:no-two-bit,14.2,20.0,No fixed two-bit output in one such block,not formalized,"Match the full statement, hypotheses, and proof dependencies in the LaTeX source."
+26,auxiliary_obligation,aux:stopping-semantics,,,Definitions and prefix measurability,not formalized,"All continuations, not expected or probabilistic deadlines; L=1 and constant streams explicit."
+27,auxiliary_obligation,aux:critical-constants,,,Critical constants and algebraic floor certification,not formalized,"Irrationality, power identities, rational bounds, all finite floor witnesses."
+28,auxiliary_obligation,aux:dyadic-union,,,Global fairness and almost-sure termination,not formalized,"Disjoint cylinder events, countable additivity, null constant streams for fixed bias."
+29,auxiliary_obligation,aux:certificate-soundness,,,Soundness of finite witness checker,not formalized,"Checked dimensions, profile, parity, capacity, full integer polynomial equality; no external output assumed."
+30,auxiliary_obligation,aux:decimal-enclosure,,,Displayed numerical value of beta and C_*,not formalized,"Optional numeric annotation; rational log-series certificate, independent of algebraic floor witnesses."
+31,auxiliary_obligation,aux:character-recurrence,,,Character coefficient recurrence in reproducibility section,not formalized,Optional implementation-correctness endpoint; differentiating and clearing 1-x^2.
+32,auxiliary_obligation,aux:radix-identity,,,Injective radix identity test in reproducibility section,not formalized,Optional supplementary-checking endpoint; leading-coefficient dominance with B>M+1.
+33,auxiliary_obligation,aux:example-mixture,,,Hidden-bias exchangeable-source example,not formalized,"Conditioned iid inputs with random bias in (0,1); type invariance and a.s. finite L."
