@@ -149,22 +149,43 @@ bias.
 The particular time-limited problem considered here was posed by Elliot
 Glazer in an online discussion in August 2024, initially for a loaded
 six-sided die, together with the question of the best linear efficiency
-constant~\cite{GlazerPuzzling2024}. In that discussion the symbol $n$
-denotes the index of the first change, so in the present notation $n=L+1$.
-For the binary case, Charles Wang gave a $2n-2=2L$ construction
-~\cite{WangPuzzling2024}. Glazer pointed out a flaw in the initially posted
-version; Wang agreed and edited the construction to make the recursion greedy.
-That corrected $2n-2$ construction is the valid one cited here. Wang also
-proposed a $7n/4$ recursive refinement, but that refinement was subsequently
-found to be invalid; Wagon's later account records that Peter Winkler pointed
-out the error and that Wang acknowledged it~\cite{WagonPuzzling2025}. Stan Wagon subsequently reported using the problem
-as a Macalester Problem of the Week; several
+constant~\cite{GlazerPuzzling2024}. There are two incompatible historical
+conventions for the parameter called $n$. In the Puzzling discussion and in
+Wagon's answer, let us write $n_{\mathrm{SE}}$ for the number of flips up to
+and including the first outcome different from the initial one. Thus
+\begin{equation}\label{eq:historical-notation}
+ n_{\mathrm{SE}}=L+1.
+\end{equation}
+For the binary case, Charles Wang gave a corrected
+$2n_{\mathrm{SE}}-2=2L$ construction~\cite{WangPuzzling2024}. Glazer
+pointed out a flaw in the initially posted version; Wang agreed and edited
+the construction to make the recursion greedy. That corrected construction
+is the valid one cited here. Wang also proposed a recursive $7n_{\mathrm{SE}}/4$
+refinement, but that refinement was subsequently found to be invalid;
+Wagon's later account records that Peter Winkler pointed out the error and
+that Wang acknowledged it~\cite{WagonPuzzling2025}. Stan Wagon subsequently
+reported using the problem as a Macalester Problem of the Week; several
 readers found a recursive solution, and Wagon and Peter Winkler found a
-formulaic construction. Wagon's posted account gives a $2n-3=2L-1$
-worst-case bound for the binary problem~\cite{WagonPuzzling2025}. Glazer
-later posed the coin version as Problem 12592 in the \emph{American
-Mathematical Monthly}, using $n$ for the initial-run length and asking for
-the bounds $2n$ and $\max\{2,2n-1\}$~\cite{GlazerAMM2026}.
+formulaic construction. Wagon's posted account gives the bound
+$2n_{\mathrm{SE}}-3=2L-1$ for the binary problem~\cite{WagonPuzzling2025}.
+
+Glazer later posed the coin version as Problem 12592 in the \emph{American
+Mathematical Monthly}~\cite{GlazerAMM2026}. There the symbol $n$ has a
+different meaning: the ``critical value'' is the length of the maximal
+initial constant run. Writing this historical parameter as
+$n_{\mathrm{AMM}}$, we have
+\[
+ n_{\mathrm{AMM}}=L=n_{\mathrm{SE}}-1.
+\]
+Consequently the two earlier bounds become
+\[
+ 2n_{\mathrm{SE}}-2=2L=2n_{\mathrm{AMM}},
+ \qquad
+ 2n_{\mathrm{SE}}-3=2L-1=2n_{\mathrm{AMM}}-1.
+\]
+Thus the Monthly requests $2n_{\mathrm{AMM}}$ and
+$\max\{2,2n_{\mathrm{AMM}}-1\}$ are exactly the same two bounds after
+translating conventions. This paper uses $L$ throughout.
 
 For $L\ge2$ we balance the events $N\le L<2N$ individually. This is a
 sufficient construction principle, not an assumption on all possible fair
