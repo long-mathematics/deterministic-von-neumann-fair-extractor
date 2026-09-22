@@ -298,3 +298,153 @@ def integral_rounding(
         if lower.denominator != 1 or abs(lower) != 1:
             raise AssertionError(("lower boundary", N, i, lower))
         f[i][0] = int(lower)
+
+        for r in range(1, R[i] + 1):
+            pred = predecessor(i, r)
+            parity = comb(R[i], r) % 2
+
+            if i < N - 1 and r == 1:
+                # Choose the next lower boundary sign.  At the final overlap
+                # R_i=1, test both choices and retain an admissible one.
+                options = []
+                for next_boundary in (-1, 1):
+                    d = u[i + 1][0] - next_boundary
+                    value = u[i][r] + d - pred
+                    integral = value.denominator == 1
+                    parity_ok = integral and int(value) % 2 == parity
+                    capacity_ok = integral and abs(int(value)) <= comb(R[i], r)
+                    options.append(
+                        (
+                            not parity_ok,
+                            not capacity_ok,
+                            abs(d),
+                            abs(value),
+                            next_boundary,
+                            d,
+                            value,
+                        )
+                    )
+                options.sort()
+                bad_parity, bad_capacity, _, _, _, d, value = options[0]
+                if bad_parity or bad_capacity:
+                    raise AssertionError(("forced r=1", N, i, options))
+                delta[i][r] = d
+                f[i][r] = int(value)
+            elif i < N - 1:
+                target_center = u[i][r] - pred
+                target = nearest_parity_integer(
+                    target_center, parity, boundary=(r == R[i])
+                )
+                delta[i][r] = Fraction(target) - target_center
+                f[i][r] = target
+            else:
+                value = u[i][r] - pred
+                if value.denominator != 1:
+                    raise AssertionError(("terminal integrality", N, i, r, value))
+                f[i][r] = int(value)
+
+            Q = comb(R[i], r)
+            if f[i][r] % 2 != parity or abs(f[i][r]) > Q:
+                raise AssertionError(("packet", N, i, r, f[i][r], Q, parity))
+            max_error = max(max_error, abs(Fraction(f[i][r]) - u[i][r]))
+
+    return f, max_error
+
+
+def polynomial_identity(
+    N: int, a: Sequence[int], rows: Sequence[Sequence[int]], target: int,
+    force_direct: bool = False,
+) -> None:
+    """Check sum z^i(1-z)^a_i rows_i(z) = target, exactly.
+
+    Q is the difference polynomial. Each coefficient of Q is bounded in
+    magnitude by M = abs(target)+sum_i 2^a_i sum_r abs(rows_i[r]).
+    If B>M+1 is an integer, Q(B)=0 implies Q=0: the leading nonzero
+    integer coefficient would dominate all lower terms. This proves the
+    soundness of the large-block path independently of the construction.
+    """
+    if len(a) != N or len(rows) != N:
+        raise AssertionError("incorrect level count")
+    for i, row in enumerate(rows):
+        if i + a[i] + len(row) - 1 > N-1:
+            raise AssertionError("polynomial degree exceeds N-1")
+    if force_direct or N <= 128:
+        polynomial = [0] * N
+        for i, row in enumerate(rows):
+            suffix = [(-1)**j * comb(a[i], j) for j in range(a[i]+1)]
+            for r, coefficient in enumerate(row):
+                if coefficient:
+                    for j, value in enumerate(suffix):
+                        polynomial[i+r+j] += coefficient * value
+        if polynomial[0] != target or any(polynomial[1:]):
+            raise AssertionError(("coefficient identity",N))
+        return
+
+    M = abs(target) + sum((sum(abs(c) for c in row) << ai)
+                         for ai,row in zip(a,rows))
+    width = (M.bit_length()+3+7)//8
+    bits = 8*width
+    B = 1 << bits
+    if B <= M+1:
+        raise AssertionError("insufficient radix")
+    offset = B//2
+    offset_bytes = offset.to_bytes(width, 'little')
+
+    def evaluate(row: Sequence[int]) -> int:
+        # All shifted digits are in [0,B), so this byte packing is exact.
+        encoded = b''.join((c+offset).to_bytes(width,'little') for c in row)
+        return (int.from_bytes(encoded,'little')
+                - int.from_bytes(offset_bytes*len(row),'little'))
+
+    value = evaluate(rows[0])
+    for i in range(1,N):
+        drop = a[i-1]-a[i]
+        if drop not in (0,1,2):
+            raise AssertionError("unsupported profile drop")
+        for _ in range(drop):
+            value -= value << bits  # multiply by 1-B
+        value += evaluate(rows[i]) << (bits*i)
+    if a[-1] != 0 or value != target:
+        raise AssertionError(("injective radix identity",N))
+
+
+def verify_identity(N: int, a: Sequence[int], f: Sequence[Sequence[int]]) -> None:
+    polynomial_identity(N,a,f,1)
+
+
+def certificate_check(block: dict) -> None:
+    """Independent checker: uses no folding or rounding code."""
+    N = block['N']
+    a,R = profile(N)
+    if a != block['a'] or R != block['R'] or block['shift'] != logarithmic_shift(N):
+        raise AssertionError("certificate profile mismatch")
+    f = block['f']
+    if len(f) != N:
+        raise AssertionError("certificate level count")
+    for i,row in enumerate(f):
+        if len(row) != R[i]+1:
+            raise AssertionError("certificate row length")
+        for r,c in enumerate(row):
+            Q=comb(R[i],r)
+            if type(c) is not int or abs(c)>Q or (c-Q)%2:
+                raise AssertionError(("certificate capacity/parity",N,i,r))
+        assert 2*N-a[i] == min(2*N,ceil_cstar(N+i)-logarithmic_shift(N))
+    polynomial_identity(N,a,f,1,force_direct=True)
+
+
+CERTIFICATES: List[dict] = []
+
+
+def verify_block(N: int) -> Tuple[int, int, Fraction, int, Fraction]:
+    a, R = profile(N)
+    u, weights = real_center(N, a, R)
+
+    denominator = 2 ** (N-1)
+    maximum_positive_norm = Fraction(0)
+    for i,digit in enumerate(weights):
+        norm_numerator = sum(abs(v) for v in digit.values())
+        if norm_numerator > denominator:
+            raise AssertionError(("digit norm",N,i))
+        if i:
+            maximum_positive_norm = max(maximum_positive_norm,
+                                        Fraction(norm_numerator,denominator))
