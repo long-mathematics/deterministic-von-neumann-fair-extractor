@@ -1,0 +1,48 @@
+name: Bootstrap generated artifacts
+
+on:
+  push:
+    branches: [repo-bootstrap-september-revision]
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Verify canonical verifier
+        run: echo "07801d62aedf91b87e122bd96f53a9bd450d64dd4e265caaff364f3da0dced61  scripts/verify_glazer_critical.py" | sha256sum -c -
+      - name: Generate and verify finite certificates
+        run: |
+          mkdir -p scripts/certificates
+          python3 scripts/verify_glazer_critical.py --extra 128 256 512 1024 \
+            --export scripts/certificates/finite_blocks.json > /tmp/verification_output.txt
+          diff -u scripts/verification_output.txt /tmp/verification_output.txt
+          python3 scripts/verify_glazer_critical.py \
+            --check-certificate scripts/certificates/finite_blocks.json \
+            > /tmp/certificate_check.txt
+          diff -u scripts/finite_certificate_check.txt /tmp/certificate_check.txt
+          python3 scripts/supplementary_checks.py > /tmp/supplementary_output.txt
+          diff -u scripts/supplementary_verification_output.txt /tmp/supplementary_output.txt
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends latexmk texlive-latex-extra texlive-fonts-recommended lmodern
+      - name: Compile manuscript
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error deterministic_von_neumann_fair_extractor.tex
+          if grep -E 'undefined|LaTeX Warning:|Overfull' deterministic_von_neumann_fair_extractor.log; then
+            exit 1
+          fi
+      - name: Commit generated artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add deterministic_von_neumann_fair_extractor.pdf scripts/certificates/finite_blocks.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Add compiled manuscript and finite certificates"
+          git push origin HEAD:repo-bootstrap-september-revision
