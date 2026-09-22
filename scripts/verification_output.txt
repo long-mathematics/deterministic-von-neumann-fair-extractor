@@ -1,0 +1,22 @@
+Certified beta interval:
+  0.5979874356654401 < beta < 0.5979874356654403
+Independent character checks: 861 exact polynomial comparisons
+Fair-binomial modal square bound: m=0,...,200 checked exactly
+Rational constants: 3250/121 < 27 and 27/125 < 1/4
+Algebraic floors: m=1,...,2048 agree with the rigorous log enclosure
+
+N    shift h    sites    max|f-u|       min margin  max positive norm
+2    0     0    3        1              0           0
+4    0     1    9        1              2           0.25
+8    0     2    32       2.3125         2           0.59375
+16   0     4    122      3.393798828    2           0.463806152344
+32   0     8    474      3.454914212    2           0.361610896885
+64   0     16   1869     4.188070966    2           0.324908444187
+128  0     32   7418     4.241126395    2           0.256354992306
+256  0     64   29564    4.541055011    2           0.167197313145
+512  0     129  118032   4.639057134    2           0.127637267246
+1024 1     258  471442   4.698230311    2           0.185055601942
+
+Finite certificate exported: finite_blocks.json
+
+All exact checks passed.

@@ -1,0 +1,1466 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,booktabs,array,enumitem}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[hypertexnames=false]{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue,
+ pdfauthor={Christopher D. Long},
+ pdftitle={A Critical Linear Bound with Logarithmic Savings for Glazer's Time-Limited Fair-Coin Problem}}
+\setlength{\emergencystretch}{2em}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb N}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Ftwo}{\mathbb F_2}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\wt}{\operatorname{wt}}
+\newcommand{\sgn}{\operatorname{sgn}}
+\newcommand{\poly}{\mathbb R[z]_{\le n}}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Prb}{\mathbb P}
+\newcommand{\logfive}{\log_5}
+
+\title{A Critical Linear Bound with Logarithmic Savings\\
+for Glazer's Time-Limited Fair-Coin Problem}
+\author{Christopher D. Long\\[3pt]
+\small\href{mailto:galizur@gmail.com}{\texttt{galizur@gmail.com}}}
+\date{September 20, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let a coin have unknown bias $p\in(0,1)$, and let $L$ be the length of its
+maximal initial constant run. We construct a deterministic, bias-independent
+fair-bit extractor satisfying, simultaneously,
+\[
+ T(L)\le\lceil C_*L\rceil,
+ \qquad
+ T(L)\le C_*L-\log_5L+6,
+ \qquad
+ C_*:=1+\frac{2\log\phi}{\log5}=1.597987435665\ldots,
+\]
+where $\phi=(1+\sqrt5)/2$.
+The construction separately balances dyadic blocks at horizon $2N$.
+A parity-character folding identity supplies a real center; an elementary
+binomial-mixture estimate controls its positive-level norms; and a
+boundary-preserving integer rounding moves each interior coefficient by at
+most five. The argument is uniform for dyadic $N\ge128$, and six smaller
+blocks have exact integer certificates.
+We prove that $C_*$ is the optimal leading coefficient for all separately
+balanced horizon-$2N$ rules, without assuming complement symmetry, and
+that this lower bound persists with an $o(N)$ extra horizon. An exact
+inequality for the deadlines bounds the possible logarithmic saving.
+The extractor also works for exchangeable binary sources with almost surely
+finite $L$. Finally, a parity obstruction characterizes why the block
+length must be a power of two at horizon $2N$.
+\end{abstract}
+
+\begingroup
+\small
+\makeatletter
+\renewcommand{\l@section}[2]{\@dottedtocline{1}{0em}{1.8em}{#1}{#2}}
+\makeatother
+\tableofcontents
+\endgroup
+\clearpage
+
+\section{Statement of the problem and main result}
+
+Let $X_1,X_2,\ldots$ be independent coin flips with
+\[
+ \mathbb P(X_j=0)=p,
+ \qquad
+ \mathbb P(X_j=1)=q:=1-p,
+\]
+where $p\in(0,1)$ is arbitrary and unknown to the rule.  On every nonconstant sequence, let $L$ denote the length of the maximal initial constant run.  Thus the observed sequence starts with either $0^L1$ or $1^L0$.
+
+A deterministic extractor assigns one of two outputs, denoted $H$ and $T$, after reading finitely many flips.  It is \emph{fair} if
+\[
+ \mathbb P_p(H)=\mathbb P_p(T)=\frac12
+ \qquad\text{for every }p\in(0,1).
+\]
+Let $T(L)$ be an upper bound for the number of flips used on sequences whose initial run has length $L$.
+
+Put
+\begin{equation}\label{eq:constants}
+ \phi:=\frac{1+\sqrt5}{2},
+ \qquad
+ \beta:=\frac{2\log\phi}{\log5},
+ \qquad
+ \alpha:=1-\beta,
+ \qquad
+ C_*:=1+\beta=2-\alpha.
+\end{equation}
+Numerically,
+\[
+ \beta=0.597987435665\ldots,
+ \qquad
+ \alpha=0.402012564334\ldots,
+ \qquad
+ C_*=1.597987435665\ldots.
+\]
+
+For each power of two $N\ge2$, define the integer saving
+\begin{equation}\label{eq:shift}
+ s_N:=\max\{0,\lfloor\log_5N\rfloor-3\}.
+\end{equation}
+The logarithm $\log_5 x$ means $\log x/\log5$.
+
+\begin{theorem}[Critical bound with logarithmic saving]\label{thm:main}
+There exists a deterministic fair extractor that stops on every nonconstant
+input sequence. It uses two flips when $L=1$. When $N\le L<2N$ with $N\ge2$
+a power of two, it satisfies
+\begin{equation}\label{eq:main-profile}
+ T(L)\le\min\{2N,\lceil C_*L\rceil-s_N\}.
+\end{equation}
+In particular, for every integer $L\ge1$, the same extractor satisfies
+\begin{align}
+ T(L)&\le\lceil C_*L\rceil,\label{eq:main-bound}\\
+ T(L)&\le C_*L-\log_5L+6.\label{eq:main-log-bound}
+\end{align}
+Its two outputs have equal mass separately on every dyadic block for every
+bias $p\in(0,1)$.
+\end{theorem}
+
+The classical assignments $01\mapsto H$ and $10\mapsto T$ treat $L=1$;
+they go back to von Neumann~\cite{vonNeumann1951}. For $L\ge2$ we balance
+the events $N\le L<2N$ individually. This is a sufficient construction
+principle, not an assumption on all possible fair extractors.
+Section~\ref{sec:optimality} proves optimality of the leading coefficient
+within the separately balanced horizon-$2N$ class, and
+Section~\ref{sec:extra-horizon} treats sublinear additional horizons.
+Neither result asserts unrestricted optimality when different blocks can
+cancel each other's imbalance.
+
+The distinction between an observed stopping time and a worst-case profile
+is important: $T(L)$ bounds every continuation with that initial run length.
+A universally fair extractor cannot stop at a constant prefix $0^t$ or
+$1^t$. Indeed, an output assigned to $0^t$ would have probability at least
+$p^t$, exceeding $1/2$ for $p$ sufficiently near one; the other case is
+symmetric. Thus observing the first change, at flip $L+1$, is unavoidable.
+
+\section{The dyadic packet reduction}
+
+Fix a dyadic integer $N\ge2$, put
+\[
+ n:=N-1,
+\]
+and consider initial-run lengths $N+i$, where $0\le i\le n$.  Pad all decisions in this block to the common horizon $2N$.  After the first change, the full tail then has length $n-i$.
+
+For a tail $w\in\{0,1\}^{n-i}$, pair
+\[
+ 0^{N+i}1w
+ \qquad\text{with}\qquad
+ 1^{N+i}0\overline w,
+\]
+where $\overline w$ is the bitwise complement.  If $w$ has $r$ zeros, then a positively signed pair has probability difference
+\[
+ p^{N+i+r}q^{N-i-r}-q^{N+i+r}p^{N-i-r}.
+\]
+Writing $\ell=i+r$, this depends only on $\ell$.  The class $\ell=0$ contributes zero, and fairness is obtained by giving every class $1\le\ell\le n$ zero signed discrepancy.
+
+Suppose that at level $i$ the final $a_i$ tail bits are left unread.  Put
+\[
+ R_i:=n-i-a_i.
+\]
+Thus $R_i$ tail bits are read, and the actual stopping length at this
+level is
+\[
+ (N+i)+1+R_i=2N-a_i.
+\]
+For each read prefix $x\in\{0,1\}^{R_i}$ choose a sign
+$\sigma_i(x)\in\{\pm1\}$.  The same sign is used for all $2^{a_i}$ unread completions, while the complementary branch receives the opposite output.  For $0\le r\le R_i$, let $e_{i,r}$ be the number of positive read prefixes containing $r$ zeros minus the number of negative such prefixes, and write
+\[
+ E_i(x):=\sum_{r=0}^{R_i}e_{i,r}x^r.
+\]
+
+\begin{lemma}[Packet realization]\label{lem:packet-realization}
+An integer vector $(e_{i,r})_{r=0}^{R_i}$ is realizable by deterministic signs if and only if
+\begin{equation}\label{eq:packet-admissibility-e}
+ |e_{i,r}|\le\binom{R_i}{r},
+ \qquad
+ e_{i,r}\equiv\binom{R_i}{r}\pmod2
+ \qquad(0\le r\le R_i).
+\end{equation}
+The signed discrepancy contributed by level $i$ to class $\ell$ is
+\[
+ [x^\ell]x^i(1+x)^{a_i}E_i(x).
+\]
+Consequently, the block is fair whenever
+\begin{equation}\label{eq:x-identity}
+ \sum_{i=0}^{n}x^i(1+x)^{a_i}E_i(x)
+\end{equation}
+is constant.
+\end{lemma}
+
+\begin{proof}
+There are $Q=\binom{R_i}{r}$ read prefixes with $r$ zeros.  If $P$ of them are positive, their net coefficient is $2P-Q$.  This proves necessity of \eqref{eq:packet-admissibility-e}; conversely, those two conditions make $(Q+e_{i,r})/2$ an integer in $[0,Q]$.  Declaring, for example, the lexicographically first $(Q+e_{i,r})/2$ prefixes positive gives a deterministic realization.
+
+A read prefix with $r$ zeros has $\binom{a_i}{j}$ unread completions with $j$ zeros.  Such a completion belongs to class $i+r+j$.  Summing over $r$ and $j$ gives the coefficient formula.  If \eqref{eq:x-identity} is constant, all nonzero classes have discrepancy zero.  The constant class is harmless because its paired probability difference is identically zero.
+\end{proof}
+
+Substitute $x=-z$ and define
+\[
+ f_{i,r}:=(-1)^{i+r}e_{i,r}.
+\]
+The capacity and parity conditions are unchanged.  It is therefore enough to find integers $f_{i,r}$ such that
+\begin{equation}\label{eq:target-identity}
+ \sum_{i=0}^{n}\sum_{r=0}^{R_i}
+ f_{i,r}z^{i+r}(1-z)^{a_i}=1
+\end{equation}
+and
+\begin{equation}\label{eq:packet-admissibility}
+ |f_{i,r}|\le\binom{R_i}{r},
+ \qquad
+ f_{i,r}\equiv\binom{R_i}{r}\pmod2.
+\end{equation}
+
+\begin{lemma}[Fixed-horizon type balance]\label{lem:type-balance}
+Let $\mathcal W\subseteq\{0,1\}^{H}$ and let
+$\varepsilon:\mathcal W\to\{\pm1\}$ be a signing. The identity
+\[
+ \sum_{w\in\mathcal W}\varepsilon(w)p^{z(w)}(1-p)^{H-z(w)}=0
+ \qquad(0<p<1)
+\]
+holds if and only if
+\begin{equation}\label{eq:type-balance}
+ \sum_{\substack{w\in\mathcal W\\z(w)=k}}\varepsilon(w)=0
+ \qquad(0\le k\le H),
+\end{equation}
+where $z(w)$ is the number of zeros in $w$.
+\end{lemma}
+\begin{proof}
+Write the latter signed counts as $c_k$. Dividing the former expression
+by $(1-p)^H$ gives $\sum_k c_k x^k=0$ for every
+$x=p/(1-p)>0$. A nonzero real polynomial has only finitely many roots,
+so every $c_k$ is zero. The converse follows by grouping the words by $k$.
+\end{proof}
+
+\section{The logarithmically shifted suffix profile}\label{sec:profile}
+
+We first record elementary facts about the constants. The number $\beta$
+is irrational: if $\beta=A/B$ with positive integers $A,B$, then
+$5^A=\phi^{2B}$, whereas
+\[
+ \phi^{2B}=F_{2B}\phi+F_{2B-1}\notin\mathbb Q.
+\]
+Here $F_0=0$, $F_1=1$, and $F_{j+1}=F_j+F_{j-1}$; the identity follows
+inductively from $\phi^2=\phi+1$. In particular, both $\alpha$ and $C_*$
+are irrational.
+
+We shall use
+\begin{equation}\label{eq:alpha-bounds}
+ \frac25<\alpha<\frac{13}{32}.
+\end{equation}
+For the first inequality it suffices to show $\phi^{10}<5^3$.
+Since $\phi<13/8$,
+\[
+ \phi^{10}=55\phi+34<55\cdot\frac{13}{8}+34=\frac{987}{8}<125.
+\]
+For the second, it suffices to show $\phi^{64}>5^{19}$. The recurrence gives
+$F_{64}=10610209857723$ and $F_{63}=6557470319842$, while
+$\phi>809/500$ follows from $(559/250)^2<5$. Hence
+\[
+ 500\phi^{64}>809F_{64}+500F_{63}
+ =11862394934818907>9536743164062500=500\cdot5^{19}.
+\]
+
+For the rest of the construction use $s=s_N$ from \eqref{eq:shift} and set
+\begin{equation}\label{eq:critical-profile}
+ a_i:=\max\{0,2N-\lceil C_*(N+i)\rceil+s\},
+ \qquad R_i:=n-i-a_i.
+\end{equation}
+Equivalently,
+\begin{equation}\label{eq:profile-floor}
+ a_i=\max\{0,\lfloor\alpha(N+i)\rfloor-2i+s\}.
+\end{equation}
+In particular the suffixes are specified by integers and the sign rule
+does not depend on the unknown bias.
+
+\begin{lemma}[Saving and profile properties]\label{lem:profile}
+Let $N\ge2$ be a power of two and let $h=\min\{i:a_i=0\}$. Then:
+\begin{enumerate}[label=\textup{(\roman*)}]
+\item $s_N=0$ for $N<128$. For $N\ge128$,
+\begin{equation}\label{eq:shift-bounds}
+ 5^{s_N}\le\frac N{125},\qquad 0\le s_N\le\frac N{64}.
+\end{equation}
+\item $0\le a_i\le n-i$ and $a_i-a_{i+1}\in\{0,1,2\}$.
+\item For $0\le i<h$,
+\begin{equation}\label{eq:R-beta}
+ R_i=\lfloor\beta(N+i)\rfloor-s_N,
+\end{equation}
+and $R_0,\ldots,R_h$ is nondecreasing.
+\item The stopping length is exactly
+\begin{equation}\label{eq:profile-stop}
+ 2N-a_i=\min\{2N,\lceil C_*(N+i)\rceil-s_N\}.
+\end{equation}
+\item For dyadic $N\ge128$,
+\begin{equation}\label{eq:kR-bounds}
+ k:=a_0\le\frac{27N}{64}-1,\qquad
+ R_0=n-k\ge\frac{37N}{64}.
+\end{equation}
+\item For $N\ge8$, $h\le N/2$, $a_{n-2}=a_{n-1}=a_n=0$, and
+$R_i\ge2$ for $0\le i\le n-2$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+Put $j=\lfloor\log_5N\rfloor$. When $128\le N<625$, $j=3$ and $s=0$,
+so the first inequality in \eqref{eq:shift-bounds} holds. When $N\ge625$,
+$s=j-3$ and $5^s=5^j/125\le N/125$. The elementary induction
+$64(j-3)\le5^j$ for $j\ge4$ proves the second inequality; for $s=0$
+it is immediate. The assertion for $N<128$ follows from $N<5^4$.
+
+The untruncated expression in \eqref{eq:profile-floor} drops by either one
+or two at each step. Truncation at zero gives (ii)'s drop assertion.
+If $a_i>0$, irrationality and $\alpha+\beta=1$ give
+\[
+ R_i=N+i-1-\lfloor\alpha(N+i)\rfloor-s
+     =\lfloor\beta(N+i)\rfloor-s.
+\]
+For $N<128$ this is nonnegative because $s=0$. For $N\ge128$,
+$\beta>19/32$ and $s\le N/64$ give
+$R_i>37N/64-1>0$. Thus $a_i\le n-i$ in every case, including the
+zero-suffix levels. The displayed $R_i$ are nondecreasing before the
+transition. At the transition,
+\[
+ R_h-R_{h-1}=a_{h-1}-1\in\{0,1\}.
+\]
+This proves (ii)--(iii). Assertion (iv) is the definition of $a_i$.
+
+For dyadic $N\ge128$, $13N/32$ is integral, so
+\[
+ k=\lfloor\alpha N\rfloor+s
+ \le\frac{13N}{32}-1+\frac N{64}
+ =\frac{27N}{64}-1.
+\]
+This proves (v).
+
+For $N\ge128$, the untruncated expression at $i=N/2$ is less than
+$39N/64-N+N/64<0$. For $8\le N<128$, the same assertion follows with
+$s=0$. Hence $h\le N/2\le n-2$. Before $h$, the read lengths are at
+least $R_0$; for $8\le N<128$ we have $R_0=\lfloor\beta N\rfloor\ge4$,
+and for larger $N$ use (v). After $h$, $R_i=n-i$, proving (vi).
+\end{proof}
+
+\section{A parity-character folding identity}
+
+The central construction is most transparent after the substitution
+\begin{equation}\label{eq:y-u}
+ y:=\frac{x}{1+x},
+ \qquad
+ u:=1-2y=\frac{1-x}{1+x}.
+\end{equation}
+A parity character on $t$ specified read coordinates has expectation $u^t$ under independent Bernoulli-$y$ inputs.  Equivalently,
+\begin{equation}\label{eq:parity-character}
+ (1+x)^{R}u^t=(1-x)^t(1+x)^{R-t}.
+\end{equation}
+Every coefficient of the polynomial on the right has absolute value at most the corresponding coefficient of $(1+x)^R$.
+
+For a polynomial $G(u)=\sum_{t\ge0}p_tu^t$ with $p_t\ge0$, define its fold at degree $R$ by
+\begin{equation}\label{eq:fold}
+ \mathcal F_R G(u)
+ :=\sum_{t=0}^{R-1}p_tu^t+
+   \left(\sum_{t\ge R}p_t\right)u^R.
+\end{equation}
+
+Set
+\begin{equation}\label{eq:F0}
+ F_0(u):=\left(\frac{1+u}{2}\right)^n.
+\end{equation}
+We construct polynomials $W_i,F_{i+1}$ recursively.  Suppose
+\[
+ F_i(u)=\eps_i\sum_t p_{i,t}u^t,
+ \qquad
+ \eps_i\in\{\pm1\},
+ \qquad
+ p_{i,t}\ge0.
+\]
+If $\deg F_i\le R_i$, put $W_i:=F_i$ and $W_j:=0$ for $j>i$.  Otherwise put
+\begin{equation}\label{eq:fold-recursion}
+ W_i:=\eps_i\mathcal F_{R_i}\!\left(\sum_tp_{i,t}u^t\right),
+ \qquad
+ F_{i+1}:=\frac{F_i-W_i}{y}
+          =\frac{2(F_i-W_i)}{1-u}.
+\end{equation}
+
+\begin{lemma}[One-sign recursion]\label{lem:one-sign}
+If $\deg F_i>R_i$, then
+\begin{equation}\label{eq:Fnext-coeff}
+ F_{i+1}(u)
+ =-\eps_i\sum_{s\ge R_i}
+   \left(2\sum_{t>s}p_{i,t}\right)u^s.
+\end{equation}
+Thus the coefficients of $F_{i+1}$ again have one sign, and
+\[
+ \deg F_{i+1}=\deg F_i-1.
+\]
+The recursion terminates exactly at level $h$, and
+\begin{equation}\label{eq:fold-telescope}
+ \left(\frac{1+u}{2}\right)^n
+ =\sum_{i=0}^{h}y^iW_i(u).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+For $G(u)=\sum_tp_tu^t$,
+\begin{align*}
+ G(u)-\mathcal F_RG(u)
+ &=\sum_{t>R}p_t(u^t-u^R)\\
+ &=-(1-u)\sum_{s\ge R}
+      \left(\sum_{t>s}p_t\right)u^s.
+\end{align*}
+This proves \eqref{eq:Fnext-coeff}.  Initially $\deg F_0=n$, and every nonterminal division lowers the degree by one.  Hence $\deg F_i=n-i$.  By definition, $R_i=n-i-a_i$, so the first level at which $\deg F_i\le R_i$ is exactly the first level with $a_i=0$, namely $h$.  Finally, $F_i=W_i+yF_{i+1}$; iteration gives \eqref{eq:fold-telescope}.
+\end{proof}
+
+Write
+\[
+ W_i(u)=\sum_{t=0}^{R_i}w_{i,t}u^t,
+ \qquad
+ M_i:=\sum_{t=0}^{R_i}|w_{i,t}|.
+\]
+Define a real packet polynomial
+\begin{equation}\label{eq:real-E}
+ E_i^{(0)}(x)
+ :=(1+x)^{R_i}W_i\!\left(\frac{1-x}{1+x}\right)
+ =\sum_{t=0}^{R_i}w_{i,t}(1-x)^t(1+x)^{R_i-t}.
+\end{equation}
+After replacing $x$ by $-z$, write
+\[
+ E_i^{(0)}(-z)=(-1)^i\sum_{r=0}^{R_i}u_{i,r}z^r.
+\]
+
+\begin{proposition}[Exact real center]\label{prop:real-center}
+The coefficients $u_{i,r}$ satisfy
+\begin{equation}\label{eq:real-identity}
+ \sum_{i=0}^{n}\sum_{r=0}^{R_i}
+ u_{i,r}z^{i+r}(1-z)^{a_i}=1.
+\end{equation}
+Moreover,
+\begin{equation}\label{eq:center-capacity-M}
+ |u_{i,r}|\le M_i\binom{R_i}{r},
+\end{equation}
+$u_{0,0}=1$, and $u_{i,r}=0$ for all $i>h$.
+\end{proposition}
+
+\begin{proof}
+Since $(1+u)/2=1-y$, equation \eqref{eq:fold-telescope} reads
+\[
+ (1-y)^n=\sum_i y^iW_i(u).
+\]
+Substitute $y=x/(1+x)$ and multiply by $(1+x)^n$.  Because $n-i-R_i=a_i$, the result is
+\[
+ 1=\sum_i x^i(1+x)^{a_i}E_i^{(0)}(x).
+\]
+Replacing $x$ by $-z$ gives \eqref{eq:real-identity}.
+
+For fixed $t$, every coefficient of $(1-x)^t(1+x)^{R_i-t}$ is a signed sum of exactly $\binom{R_i}{r}$ terms of magnitude one.  The triangle inequality gives \eqref{eq:center-capacity-M}.  Finally, $u_{0,0}=W_0(1)=F_0(1)=1$, and termination gives the last assertion.
+\end{proof}
+
+\section{Elementary binomial estimates and logarithmic slack}\label{sec:norms}
+
+All expectations in this section are finite binomial sums. The estimate
+below uses neither Fourier inversion nor a concentration theorem.
+
+Let $X\sim\operatorname{Bin}(n,1/2)$.  For $i\ge1$, define
+\[
+ \binom{m_+}{i}:=
+ \begin{cases}
+ \binom mi,&m\ge i,\\
+ 0,&m<i.
+ \end{cases}
+\]
+
+\begin{lemma}[Exact folded mass]\label{lem:mass-formula}
+For $1\le i\le h$,
+\begin{equation}\label{eq:mass-formula}
+ M_i=2^i\,\mathbb E
+ \binom{(X-R_{i-1})_+}{i}.
+\end{equation}
+Also $M_0=1$.
+\end{lemma}
+
+\begin{proof}
+Let $p_{0,x}=2^{-n}\binom nx$.  Repeated use of \eqref{eq:Fnext-coeff}, together with the monotonicity of $R_0,\ldots,R_h$, gives
+\begin{equation}\label{eq:iterated-tail}
+ p_{i,s}
+ =2^i\sum_{x>s}p_{0,x}\binom{x-s-1}{i-1}
+ \qquad(s\ge R_{i-1}).
+\end{equation}
+This follows by induction: summing \eqref{eq:iterated-tail} over $t>s$ uses
+\[
+ \sum_{t=s+1}^{x-1}\binom{x-t-1}{i-1}
+ =\binom{x-s-1}{i}.
+\]
+Summing \eqref{eq:iterated-tail} over $s\ge R_{i-1}$ and applying the same hockey-stick identity gives
+\[
+ M_i
+ =2^i\sum_xp_{0,x}\binom{x-R_{i-1}}i,
+\]
+which is \eqref{eq:mass-formula}.  The equality $M_0=1$ follows directly from \eqref{eq:F0} and the fold preserving the sum of absolute coefficients.
+\end{proof}
+
+\begin{lemma}[An elementary binomial atom bound]\label{lem:atom-bound}
+Let $Z\sim\operatorname{Bin}(n,\eta)$, where $0<\eta<1$, and put
+$\rho=2\min\{\eta,1-\eta\}$. Then
+\begin{equation}\label{eq:atom-bound}
+ \max_k\Prb(Z=k)^2\le\frac1{(n+1)\rho}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Write $c_m=2^{-m}\binom{m}{\lfloor m/2\rfloor}$ for the largest atom
+of $\operatorname{Bin}(m,1/2)$. The usual consecutive-coefficient ratio
+locates this maximum. We have
+\begin{equation}\label{eq:fair-atom-square}
+ c_m^2\le\frac1{m+1}.
+\end{equation}
+Indeed, $c_0=1$ and
+$c_{2r+2}=\frac{2r+1}{2r+2}c_{2r}$; induction for even indices uses
+$(2r+1)(2r+3)<(2r+2)^2$. For odd indices,
+$c_{2r+1}=\frac{2r+1}{2r+2}c_{2r}$, and
+$(2r+1)/(2r+2)^2\le1/(2r+2)$.
+
+By symmetry it suffices to consider $\eta\ge1/2$, so
+$\rho=2(1-\eta)$. Generate each trial by using a fair Bernoulli trial
+with probability $\rho$ and the deterministic value one otherwise.
+If $M\sim\operatorname{Bin}(n,\rho)$ counts the fair trials, then
+conditionally on $M=m$ the sum has distribution
+$n-m+\operatorname{Bin}(m,1/2)$. This mixture identity also follows by
+expanding
+\[
+ (1-\eta+\eta z)^n
+ =\left((1-\rho)z+\rho\frac{1+z}{2}\right)^n.
+\]
+Consequently, finite Cauchy--Schwarz and \eqref{eq:fair-atom-square} give
+\[
+ \max_k\Prb(Z=k)^2
+ \le\bigl(\E c_M\bigr)^2
+ \le\E c_M^2\le\E\frac1{M+1}.
+\]
+Finally, $\binom nm/(m+1)=\binom{n+1}{m+1}/(n+1)$ gives the exact identity
+\[
+ \E\frac1{M+1}
+ =\frac{1-(1-\rho)^{n+1}}{(n+1)\rho}
+ \le\frac1{(n+1)\rho}.
+\]
+The formula remains valid when $\rho=1$. This proves the lemma.
+\end{proof}
+
+Put
+\begin{equation}\label{eq:tilting-constants}
+ p_*:=1-\frac1{\sqrt5},\qquad q_*:=\frac1{\sqrt5},\qquad
+ \eta:=\frac{\sqrt5}{1+\sqrt5}.
+\end{equation}
+We use the identities
+\begin{equation}\label{eq:critical-identities}
+ \frac2{\sqrt5-1}=\frac{1+\sqrt5}{2}=\phi,
+ \qquad (\sqrt5)^\beta=\phi.
+\end{equation}
+
+\begin{lemma}[Tilted mass identity]\label{lem:tilted-mass}
+For $i\ge1$ define, on integers,
+\[
+ b_i(m):=
+ \begin{cases}
+ \binom mi p_*^i q_*^{m-i},&m\ge i,\\
+ 0,&m<i.
+ \end{cases}
+\]
+If $Z\sim\operatorname{Bin}(n,\eta)$ and $1\le i\le h$, then
+\begin{equation}\label{eq:tilted-mass}
+ M_i=(\sqrt5)^{\beta(n+i)-R_{i-1}}
+          \E b_i(Z-R_{i-1}).
+\end{equation}
+Moreover, for every finite integer $K\ge i$,
+\begin{equation}\label{eq:kernel-mass}
+ \sum_{m=i}^{K}b_i(m)\le\frac1{p_*}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+For $R=R_{i-1}$ and $x-R\ge i$,
+\[
+ 2^i\binom{x-R}{i}
+ =\phi^i(\sqrt5)^{x-R}b_i(x-R).
+\]
+Also exponential tilting of $X\sim\operatorname{Bin}(n,1/2)$ gives,
+for every function $g$ on its finite support,
+\[
+ \E(\sqrt5)^Xg(X)=\phi^n\E g(Z).
+\]
+Substituting these identities into \eqref{eq:mass-formula} and using
+$(\sqrt5)^\beta=\phi$ proves \eqref{eq:tilted-mass}.
+
+For \eqref{eq:kernel-mass}, the number
+$p_*b_i(m)=\binom mi p_*^{i+1}q_*^{m-i}$ is the probability that the
+$(i+1)$st success occurs at trial $m+1$ in $K+1$ Bernoulli trials.
+These events are disjoint as $m$ ranges from $i$ to $K$, so their
+probabilities sum to at most one. Equivalently, this is the finite identity
+\[
+ p_*\sum_{m=i}^{K}b_i(m)
+ =\sum_{j=i+1}^{K+1}\binom{K+1}{j}p_*^j q_*^{K+1-j}\le1.
+\]
+No infinite-series argument is required.
+\end{proof}
+
+\begin{proposition}[Uniform half-norm bound]\label{prop:digit-norms}
+For every dyadic $N\ge128$,
+\begin{equation}\label{eq:half-norm}
+ M_0=1,\qquad M_i<\frac12\quad(1\le i\le h).
+\end{equation}
+\end{proposition}
+\begin{proof}
+For $1\le i\le h$, the preceding level has positive suffix, so
+\[
+ R_{i-1}=\lfloor\beta(n+i)\rfloor-s_N,
+ \qquad \beta(n+i)-R_{i-1}<s_N+1.
+\]
+By \eqref{eq:kernel-mass},
+\[
+ \E b_i(Z-R_{i-1})\le\frac1{p_*}\max_k\Prb(Z=k).
+\]
+Apply Lemma~\ref{lem:atom-bound} with
+$\rho=2(1-\eta)=2/(1+\sqrt5)$ and $n+1=N$ to obtain
+\begin{equation}\label{eq:mass-square-bound}
+ M_i^2<\frac{5(1+\sqrt5)}{2p_*^2}\frac{5^{s_N}}N
+       <27\frac{5^{s_N}}N\le\frac{27}{125}<\frac14.
+\end{equation}
+Every numerical comparison here is elementary: $\sqrt5<9/4$ and
+$p_*>11/20$ imply
+\[
+ \frac{5(1+\sqrt5)}{2p_*^2}<\frac{3250}{121}<27,
+\]
+and $5^{s_N}\le N/125$ is \eqref{eq:shift-bounds}.
+The equality $M_0=1$ was proved in Lemma~\ref{lem:mass-formula}.
+\end{proof}
+
+\section{Boundary-preserving integral parity completion}
+
+We now prove an abstract rounding lemma.  For packet sites write
+\[
+ v_{i,r}:=z^{i+r}(1-z)^{a_i}.
+\]
+Put
+\[
+ d_i:=a_i-a_{i+1}\in\{0,1,2\}.
+\]
+For $0\le i<n$ and $1\le r\le R_i$, define the integral relation
+\begin{equation}\label{eq:kernel-relation}
+ K_{i,r}
+ :=\mathbf e_{i,r}
+ -\sum_{j=0}^{d_i}(-1)^j\binom{d_i}{j}
+  \mathbf e_{i+1,r-1+j}.
+\end{equation}
+All indicated child sites exist because $R_{i+1}=R_i+d_i-1$.  The represented polynomial is zero.
+
+\begin{lemma}[Integral kernel basis]\label{lem:kernel-basis}
+The relations $K_{i,r}$ form a basis, over $\mathbb R$, of the kernel of
+\[
+ A:(c_{i,r})\longmapsto\sum_{i,r}c_{i,r}v_{i,r}
+ \in\mathbb R[z]_{\le n}.
+\]
+Moreover, there exists an integral vector $q=(q_{i,r})$ such that
+\begin{equation}\label{eq:q-identity}
+ Aq=1,
+ \qquad
+ q_{i,r}\equiv\binom{R_i}{r}\pmod2.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The boundary columns
+\[
+ v_{i,0}=z^i(1-z)^{a_i},
+ \qquad0\le i\le n,
+\]
+form a unitriangular basis of $\mathbb R[z]_{\le n}$.  Thus $A$ has rank $n+1$.  The number of relations \eqref{eq:kernel-relation} is
+\[
+ \sum_{i=0}^{n-1}R_i
+ =\sum_{i=0}^{n}(R_i+1)-(n+1),
+\]
+the dimension of the kernel.  They are linearly independent because $K_{i,r}$ has coefficient one at its parent site $(i,r)$ and all remaining coordinates lie at level $i+1$.
+
+For the second assertion, start with the integer vector
+\[
+ c_{i,r}:=\binom{R_i}{r}.
+\]
+Modulo two, its polynomial image is
+\begin{align*}
+ Ac
+ &\equiv\sum_{i=0}^{n}z^i(1+z)^{a_i+R_i}\\
+ &=\sum_{i=0}^{n}z^i(1+z)^{n-i}\\
+ &=(1+z)^{n+1}-z^{n+1}\\
+ &\equiv1\pmod2,
+\end{align*}
+because $n+1=N$ is a power of two.  Hence $Ac=1+2H$ for some $H\in\mathbb Z[z]_{\le n}$.  The unitriangular boundary basis expresses $H$ as an integral combination of the $v_{i,0}$.  Subtract twice that combination from $c$ to obtain $q$.
+\end{proof}
+
+The following lemma is the integral step that permits the critical coefficient.  Its exact treatment of the two packet boundaries is essential.
+
+\begin{lemma}[Five-unit lattice rounding]\label{lem:lattice-rounding}
+Assume that $N\ge8$ is a power of two. Let an integer profile satisfy
+$0\le a_i\le n-i$, $a_i-a_{i+1}\in\{0,1,2\}$,
+$a_{n-2}=a_{n-1}=a_n=0$, and $R_i=n-i-a_i\ge2$ for $i\le n-2$.
+Let $u=(u_{i,r})$ be a real solution of \eqref{eq:real-identity} such that
+\begin{equation}\label{eq:u-box}
+ |u_{i,r}|\le\binom{R_i}{r},
+ \qquad
+ u_{0,0}=1,
+\end{equation}
+and $u_{i,r}=0$ on the final two levels $i=n-1,n$.  Then there is an integral solution $f$ of \eqref{eq:target-identity} with the required packet parities such that:
+\begin{enumerate}[label=\textup{(\roman*)}]
+\item every lower and upper packet boundary is exact:
+\begin{equation}\label{eq:boundary-exact}
+ f_{i,0},f_{i,R_i}\in\{\pm1\};
+\end{equation}
+\item at every nonboundary site,
+\begin{equation}\label{eq:five-error}
+ |f_{i,r}-u_{i,r}|\le5;
+\end{equation}
+\item if $a_{i-1}=a_i=0$ and $u_{i,r}=0$, then at every nonboundary site of level $i$,
+\begin{equation}\label{eq:tail-error}
+ |f_{i,r}|\le2.
+\end{equation}
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Choose $q$ as in Lemma~\ref{lem:kernel-basis}.  Since $A(q-u)=0$, there are unique real coefficients $\gamma_{i,r}$ such that
+\[
+ q-u=\sum_{i=0}^{n-1}\sum_{r=1}^{R_i}\gamma_{i,r}K_{i,r}.
+\]
+We shall choose even integers $m_{i,r}$ and put
+\[
+ \delta_{i,r}:=\gamma_{i,r}-m_{i,r},
+ \qquad
+ f:=q-\sum_{i,r}m_{i,r}K_{i,r}
+   =u+\sum_{i,r}\delta_{i,r}K_{i,r}.
+\]
+Then $Af=1$, and $f$ has the same packet parities as $q$.
+
+For every ordinary kernel coordinate, choose $m_{i,r}$ to be a nearest even integer to $\gamma_{i,r}$, so that
+\begin{equation}\label{eq:delta-bound}
+ |\delta_{i,r}|\le1.
+\end{equation}
+We modify this choice along the two boundary chains, always preserving \eqref{eq:delta-bound}.
+
+For the lower boundary, observe that
+\[
+ f_{i+1,0}=u_{i+1,0}-\delta_{i,1}.
+\]
+Choose $b_{i+1}\in\{\pm1\}$ nearest to $u_{i+1,0}$ and prescribe
+\begin{equation}\label{eq:lower-delta}
+ \delta_{i,1}:=u_{i+1,0}-b_{i+1}.
+\end{equation}
+This has absolute value at most one.  It belongs to the permitted coset $\gamma_{i,1}+2\mathbb Z$: indeed, the lower-boundary coordinate of $q-u$ gives
+\[
+ \gamma_{i,1}=u_{i+1,0}-q_{i+1,0},
+\]
+and $q_{i+1,0}-b_{i+1}$ is even.  We make this prescription for $0\le i\le n-2$; the final overlapping variable is treated below.
+
+For the upper boundary, write $\eta_i:=\delta_{i,R_i}$ and process $0\le i\le n-2$ in increasing order.  At level zero choose $b_0^+\in\{\pm1\}$ so that
+\[
+ \eta_0=b_0^+-u_{0,R_0}
+\]
+has absolute value at most one.  At a later level choose $b_i^+\in\{\pm1\}$ so that
+\begin{equation}\label{eq:upper-delta}
+ \eta_i=b_i^+-u_{i,R_i}+(-1)^{d_{i-1}}\eta_{i-1}
+\end{equation}
+has absolute value at most one.  This is possible because the expression from which $b_i^+$ is subtracted lies in $[-2,2]$.  It also lies in the permitted coset.  Indeed, the upper-boundary coordinate of $q-u$ is
+\[
+ q_{i,R_i}-u_{i,R_i}
+ =\gamma_{i,R_i}-(-1)^{d_{i-1}}\gamma_{i-1,R_{i-1}},
+\]
+so the difference between \eqref{eq:upper-delta} and $\gamma_{i,R_i}$ is even by induction.  This makes $f_{i,R_i}=b_i^+$.
+
+By the structural assumptions, $R_{n-2}=2$, $R_{n-1}=1$, and $R_n=0$,
+while $R_i\ge2$ for $i\le n-2$. The only overlap of the
+lower and upper kernel variables is therefore $(i,r)=(n-1,1)$.  The
+preceding upper parameter is $\eta_{n-2}=\delta_{n-2,R_{n-2}}$, where
+$R_{n-2}=2$.  Because the real center vanishes on the final two levels,
+the upper coordinate at level $n-1$ and the lower coordinate at level $n$
+give
+\[
+ q_{n-1,1}+q_{n,0}=-\gamma_{n-2,R_{n-2}}.
+\]
+The left side is even.  Hence $\gamma_{n-2,R_{n-2}}$ is an even integer, and so is $\eta_{n-2}$; together with $|\eta_{n-2}|\le1$, this forces
+\[
+ \eta_{n-2}=0.
+\]
+Moreover, the lower coordinate at level $n$ gives
+$q_{n,0}=-\gamma_{n-1,1}$; since $q_{n,0}$ is odd,
+$\gamma_{n-1,1}$ is an odd integer.  We may therefore choose
+$\delta_{n-1,1}=1$ or $-1$ in its allowed odd coset.  The two final
+boundary values are then opposite signs.  This completes
+\eqref{eq:boundary-exact} and preserves \eqref{eq:delta-bound}
+everywhere.
+
+At an arbitrary site, the error $f-u$ consists of at most one parent term of magnitude one and the child image of the preceding level, whose total coefficient magnitude is at most
+\[
+ \sum_{j=0}^{d_{i-1}}\binom{d_{i-1}}j\le4.
+\]
+This proves \eqref{eq:five-error}.  If both consecutive suffix lengths are zero, then $d_{i-1}=0$ and the center vanishes; the error is a difference of at most two numbers of absolute value one, proving \eqref{eq:tail-error}.
+\end{proof}
+
+\section{Capacity reserve at level zero}
+
+For levels $i\ge1$, Proposition~\ref{prop:digit-norms} already gives proportional reserve.  The level-zero digit has norm exactly one, so it requires a separate estimate.
+
+Let
+\[
+ R:=R_0=n-k,
+ \qquad
+ X\sim\operatorname{Bin}(n,1/2),
+ \qquad
+ T:=\min\{X,R\}.
+\]
+The fold $W_0$ gives the distribution
+\[
+ \mathbb P(T=t)=2^{-n}\binom nt\quad(0\le t<R),
+ \qquad
+ \mathbb P(T=R)=\mathbb P(X\ge R).
+\]
+Let
+\begin{equation}\label{eq:krawtchouk}
+ K_t^{(R)}(r):=[x^r](1-x)^t(1+x)^{R-t}.
+\end{equation}
+The substitution $x=-z$ contributes the factor $(-1)^r$ to the
+coefficient of degree $r$.  Hence
+\begin{equation}\label{eq:u0-kraw}
+ u_{0,r}=(-1)^r\mathbb E K_T^{(R)}(r),
+ \qquad
+ |u_{0,r}|=\left|\mathbb E K_T^{(R)}(r)\right|.
+\end{equation}
+
+\begin{lemma}[Swap estimate]\label{lem:swap}
+For $1\le t\le R-1$ and $1\le r\le R-1$,
+\begin{equation}\label{eq:swap-bound}
+ \left|K_t^{(R)}(r)\right|
+ \le\binom Rr-2\binom{R-2}{r-1}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Fix a $t$-subset $A$ of an $R$-element set.  Then
+\[
+ K_t^{(R)}(r)=\sum_{|B|=r}(-1)^{|A\cap B|}.
+\]
+Choose $a\in A$ and $b\notin A$.  On the family of $r$-subsets containing exactly one of $a,b$, the involution swapping $a$ and $b$ reverses the sign, so those terms cancel.  There are $2\binom{R-2}{r-1}$ such subsets.  Bounding the remaining terms by their number proves the claim.
+\end{proof}
+
+\begin{lemma}[Level-zero reserve]\label{lem:level-zero-reserve}
+For every dyadic $N\ge128$ and every $1\le r\le R_0-1$,
+\begin{equation}\label{eq:level-zero-slack}
+ \binom{R_0}{r}-|u_{0,r}|>5.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Set $R=R_0$, $k=a_0$, and $X\sim\operatorname{Bin}(n,1/2)$ as above.
+The elementary binomial moment identities give
+\[
+ \E X=\frac n2,\qquad \E(X-n/2)^2=\frac n4.
+\]
+They follow, for example, by summing
+$x\binom nx=n\binom{n-1}{x-1}$ and
+$x(x-1)\binom nx=n(n-1)\binom{n-2}{x-2}$.
+For
+\[
+ \mathcal A=\left\{\frac n3\le X\le\frac{n-1}{2}\right\},
+\]
+symmetry for odd $n$ gives $\Prb(X\le(n-1)/2)=1/2$. On $X<n/3$,
+$(X-n/2)^2>n^2/36$, whence
+\[
+ \Prb(X<n/3)\le\frac{9}{n}<\frac14\qquad(n\ge127).
+\]
+Therefore
+\begin{equation}\label{eq:A-prob}
+ \Prb(\mathcal A)>\frac14.
+\end{equation}
+On this event, the truncated variable $T=\min\{X,R\}$ equals $X$ and
+lies between $1$ and $R-1$.
+
+For $2\le r\le R-2$, the swap estimate gives
+\[
+ \binom Rr-|u_{0,r}|
+ \ge2\Prb(1\le T\le R-1)\binom{R-2}{r-1}
+ >\frac12\binom{R-2}{r-1}\ge\frac{R-2}{2}>5,
+\]
+because $R\ge37N/64$.
+
+For $r=1$, $K_t^{(R)}(1)=R-2t$ and
+$M_1=2\E(X-R)_+$ imply
+\[
+ u_{0,1}=2\E T-R=k-M_1>0.
+\]
+Here $k\ge1$ follows from $\alpha>2/5$, and $M_1<1/2$ follows from
+\eqref{eq:half-norm}. Consequently,
+\[
+ R-|u_{0,1}|=R-k+M_1\ge n-2k
+ \ge\frac{5N}{32}+1>5.
+\]
+
+Finally, $K_t^{(R)}(R-1)=(-1)^t(R-2t)$ yields
+\[
+ R-|u_{0,R-1}|\ge2\E\min\{T,R-T\}.
+\]
+On $\mathcal A$,
+\[
+ \min\{T,R-T\}\ge
+ \min\left\{\frac n3,R-\frac{n-1}{2}\right\}
+ \ge\frac{5N}{64},
+\]
+using \eqref{eq:kR-bounds}. Together with \eqref{eq:A-prob}, this gives
+$R-|u_{0,R-1}|>5N/128\ge5$. This also proves the strict reserve at
+$N=128$.
+\end{proof}
+
+\section{All dyadic blocks above the threshold}
+
+\begin{theorem}[Shifted block theorem]\label{thm:large-block}
+For every dyadic $N\ge128$, there are admissible integer packets satisfying
+\eqref{eq:target-identity} for the shifted profile
+\eqref{eq:critical-profile}. The resulting deterministic rule on
+$[N,2N-1]$ is fair for every bias and satisfies \eqref{eq:main-profile}.
+\end{theorem}
+\begin{proof}
+Take the real center of Proposition~\ref{prop:real-center}. At level zero
+its norm is one, and every positive active level has norm less than
+$1/2$ by Proposition~\ref{prop:digit-norms}. Hence the center satisfies
+the packet boxes. By Lemma~\ref{lem:profile}, all structural assumptions
+of Lemma~\ref{lem:lattice-rounding} hold, and the center vanishes on the
+final two levels. Apply that rounding lemma.
+
+Every packet boundary becomes $\pm1$ and is admissible. At level zero,
+Lemma~\ref{lem:level-zero-reserve} supplies more than five units of
+reserve at each nonboundary site. For $1\le i\le h$ and $0<r<R_i$,
+\[
+ \binom{R_i}{r}-|u_{i,r}|
+ >\frac12\binom{R_i}{r}\ge\frac{R_i}{2}
+ \ge\frac{37N}{128}>5.
+\]
+Thus the five-unit rounding error remains inside the packet boxes.
+At levels $i>h$, the center is zero and the two consecutive suffixes
+are zero. The sharper rounding bound gives $|f_{i,r}|\le2$ at interior
+sites, whose capacities are at least two. The boundary sites are already
+admissible. Packet realization proves fairness and
+\eqref{eq:profile-stop} gives the deadline.
+\end{proof}
+
+\section{The six finite blocks}\label{sec:finite}
+
+The analytic proof starts at $N=128$. The remaining blocks are
+$N=2,4,8,16,32,64$, for which $s_N=0$.
+
+\begin{proposition}[Exact finite certificate]\label{prop:finite-certificate}
+For every dyadic $2\le N<128$, the profile \eqref{eq:critical-profile}
+admits packets satisfying \eqref{eq:target-identity} and
+\eqref{eq:packet-admissibility}.
+\end{proposition}
+\begin{proof}
+The ancillary program \texttt{verify\_glazer\_critical.py} constructs these
+six finite witnesses. Its SHA-256 digest is
+\begin{center}
+\small\texttt{07801d62aedf91b87e122bd96f53a9bd450d64dd4e265caaff364f3da0dced61}.
+\end{center}
+The packet arrays are also distributed separately in
+\texttt{certificates/finite\_blocks.json}; their checker does not use the
+folding or rounding construction.
+
+Every mathematical comparison uses integers or rational numbers. First,
+using rational endpoints whose squares straddle $5$ and the identity
+\[
+ \log x=2\sum_{j\ge0}\frac{z^{2j+1}}{2j+1},
+ \qquad z=\frac{x-1}{x+1},
+\]
+with the remainder bound
+\[
+ 0<2\sum_{j>M}\frac{z^{2j+1}}{2j+1}
+ \le\frac{2z^{2M+3}}{(2M+3)(1-z^2)},
+\]
+the program certifies
+\begin{equation}\label{eq:beta-enclosure}
+ 0.5979874356654401<\beta<0.5979874356654403.
+\end{equation}
+As an independent and purely algebraic certification of the floors,
+the program also checks
+\begin{equation}\label{eq:algebraic-floor}
+ 5^r<\phi^{2m}<5^{r+1},\qquad r=\lfloor\beta m\rfloor.
+\end{equation}
+These comparisons are equivalent to $r<\beta m<r+1$ because $\log5>0$.
+Using $\phi^{2m}=F_{2m}\phi+F_{2m-1}$, they reduce to exact integercomparisons in $\mathbb Q(\sqrt5)$, followed by squaring only positive
+quantities. Finally,
+$\lfloor\alpha m\rfloor=m-1-\lfloor\beta m\rfloor$.
+The finite floor witnesses are included in the JSON certificate.
+Thus the decimal enclosure is not a necessary oracle for the finite
+floor claims.
+The program then uses \eqref{eq:Fnext-coeff} to construct the folded
+center with denominator $2^{N-1}$, performs integral kernel rounding,
+and checks every packet's capacity and parity. Finally, it expands the
+left side of \eqref{eq:target-identity} coefficient by coefficient over
+$\mathbb Z[z]$ and obtains exactly $(1,0,\ldots,0)$. It also checks
+\eqref{eq:profile-stop} at every level. The independently checked packet
+arrays are therefore witnesses to the proposition.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}rrrrr@{}}
+\toprule
+$N$ & $h$ & packet sites & upper bound on $\max|f-u|$ & least interior margin\\
+\midrule
+$2$  & $0$  & $3$    & $1$ & --\\
+$4$  & $1$  & $9$    & $1$ & $2$\\
+$8$  & $2$  & $32$   & $3$ & $2$\\
+$16$ & $4$  & $122$  & $4$ & $2$\\
+$32$ & $8$  & $474$  & $4$ & $2$\\
+$64$ & $16$ & $1869$ & $5$ & $2$\\
+\bottomrule
+\end{tabular}
+\caption{Exact finite witnesses. The interior margin is
+$\binom{R_i}{r}-|f_{i,r}|$ for $0<r<R_i$; the error bounds are integers,
+not rounded numerical tests.}
+\label{tab:finite}
+\end{table}
+\end{proof}
+
+\section{Proof of the main theorem}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+For $L=1$, use $01\mapsto H$ and $10\mapsto T$. For $L\ge2$, let $N$
+be its unique dyadic scale, so $N\le L<2N$, and write $L=N+i$.
+Use Theorem~\ref{thm:large-block} if $N\ge128$, and
+Proposition~\ref{prop:finite-certificate} otherwise.
+Fix a definite admissible signing for each block, using the
+lexicographic packet realization in Lemma~\ref{lem:packet-realization}.
+Read through the first change, determine $N$ and $i$, then read $R_i$
+additional bits and output the assigned sign. The resulting rule is
+deterministic, uses no knowledge of $p$, and stops at $2N-a_i$.
+
+The blocks partition the nonconstant sequences, and each block has zero
+signed probability for every bias. Since $p,1-p<1$, the two infinite
+constant sequences have probability zero. Countable additivity now gives
+$\Prb_p(H)=\Prb_p(T)=1/2$. The deadline is \eqref{eq:profile-stop}.
+Since $s_N\ge0$, this implies \eqref{eq:main-bound}.
+
+Furthermore $s_N\ge\log_5N-4$ and $N>L/2$, so for $L\ge2$,
+\[
+ T(L)\le\lceil C_*L\rceil-s_N
+ <C_*L-\log_5L+5+\log_52
+ <C_*L-\log_5L+6.
+\]
+The same final bound holds directly for $L=1$. This proves
+\eqref{eq:main-log-bound}.
+\end{proof}
+
+\section{Optimality without complement symmetry}\label{sec:optimality}
+
+A rule is \emph{separately balanced} on a block if its two outputs have
+equal probability on the event defining that block for every $p\in(0,1)$.
+At horizon $H$, pad every decision to an $H$-letter word. This does not
+require the rule to read the padding. A per-level deadline $t_i$ means
+that the sign on the level $L=N+i$ is determined by the first $t_i$ bits.
+Adaptive rules are included: take $t_i$ to be an upper bound on all their
+stopping times at that level.
+
+\begin{theorem}[Evaluation obstruction for arbitrary signings]\label{thm:obstruction}
+Consider a deterministic, separately balanced block $[N,2N-1]$ at common
+horizon $2N$. Suppose its per-level deadlines satisfy
+$N+i+1\le t_i\le2N$. Set
+\[
+ a_i=2N-t_i,\qquad R_i=t_i-(N+i)-1.
+\]
+No complement symmetry is assumed. For every $0<\theta<1$,
+\begin{equation}\label{eq:evaluation-obstruction}
+ \sum_{i=0}^{N-1}\theta^i(1-\theta)^{a_i}
+                  (1+\theta)^{N-1-i-a_i}\ge1.
+\end{equation}
+\end{theorem}
+\begin{proof}
+Use only the branch whose initial run consists of zeros. Let $e^+_{i,r}$
+be its signed number of read tails of length $R_i$ with $r$ zeros, and put
+\[
+ E_i^+(x)=\sum_{r=0}^{R_i}e^+_{i,r}x^r,\qquad
+ P_+(x)=\sum_{i=0}^{N-1}x^i(1+x)^{a_i}E_i^+(x).
+\]
+The coefficient of $x^\ell$ is the signed number of zero-run words with
+$N+\ell$ zeros at horizon $2N$. For $\ell\ge1$, a word whose initial
+run consists of ones cannot contribute: such a word has at most $N$
+zeros. Lemma~\ref{lem:type-balance} therefore forces every nonconstant
+coefficient of $P_+$ to vanish.
+
+Its constant coefficient is the sign of the unique zero-run word with
+exactly $N$ zeros, namely $0^N1^N$. Hence $P_+\equiv\pm1$.
+Since $|e^+_{i,r}|\le\binom{R_i}{r}$, evaluation at $x=-\theta$ gives
+\[
+ 1\le\sum_i\theta^i(1-\theta)^{a_i}|E_i^+(-\theta)|
+ \le\sum_i\theta^i(1-\theta)^{a_i}(1+\theta)^{R_i}.
+\]
+This is \eqref{eq:evaluation-obstruction}.
+\end{proof}
+
+Put
+\begin{equation}\label{eq:theta-star}
+ \theta_*:=\phi^{-2}=\frac{3-\sqrt5}{2}.
+\end{equation}
+The identities
+\[
+ 1-\theta_*=\phi^{-1},\qquad
+ 1+\theta_*=\frac{\sqrt5}{\phi},\qquad
+ (\sqrt5)^\beta=\phi
+\]
+give an exact version of the obstruction in terms of the deadlines.
+
+\begin{corollary}[Exact deadline inequality]\label{cor:deadline}
+Under the assumptions of Theorem~\ref{thm:obstruction},
+\begin{equation}\label{eq:deadline-inequality}
+ \boxed{\displaystyle
+ \sum_{i=0}^{N-1}(\sqrt5)^{\,t_i-C_*(N+i)}\ge1+\theta_* .}
+\end{equation}
+\end{corollary}
+\begin{proof}
+For $t_i=2N-a_i$, direct substitution yields
+\[
+ \theta_*^i(1-\theta_*)^{a_i}(1+\theta_*)^{N-1-i-a_i}
+ =\frac{(\sqrt5)^{t_i-C_*(N+i)}}{1+\theta_*}.
+\]
+Multiply \eqref{eq:evaluation-obstruction} at $\theta=\theta_*$ by
+$1+\theta_*$.
+\end{proof}
+
+\begin{corollary}[Sharp leading coefficient]\label{cor:framework-optimal}
+Suppose fixed real constants $C,D$ satisfy $T(L)\le CL+D$ for a
+universally fair extractor whose sufficiently large dyadic blocks are
+separately balanced and have horizon $2N$. Then $C\ge C_*$. Thus the
+infimum of affine coefficients in this class is $C_*$, and it is
+attained, for example, with $D=1$.
+\end{corollary}
+\begin{proof}
+Take per-level deadlines $t_i\le C(N+i)+D$. They are at least $N+i+1$
+because no constant prefix can be terminal. If $C<C_*$, the left side
+of \eqref{eq:deadline-inequality} is at most
+\[
+ N(\sqrt5)^{(C-C_*)N+D}\longrightarrow0,
+\]
+contradicting its fixed positive lower bound. The construction in
+Theorem~\ref{thm:main} supplies the matching upper bound.
+\end{proof}
+
+\begin{corollary}[Restriction on second-order savings]\label{cor:second-order}
+Every block in Theorem~\ref{thm:obstruction} satisfies
+\begin{equation}\label{eq:log-obstruction}
+ \max_{0\le i<N}\bigl(t_i-C_*(N+i)\bigr)
+ \ge-2\log_5N+\log_{\sqrt5}(1+\theta_*).
+\end{equation}
+In particular, a uniform bound
+\[
+ T(L)\le C_*L-\lambda\log_5L+D
+\]
+within the separately balanced horizon-$2N$ class requires $\lambda\le2$.
+If $\Lambda$ is the supremum of all coefficients $\lambda$ attainable
+in this sense with some finite $D$, then
+\begin{equation}\label{eq:lambda-range}
+ 1\le\Lambda\le2.
+\end{equation}
+\end{corollary}
+\begin{proof}
+If the maximum in \eqref{eq:log-obstruction} is $b$, then
+\eqref{eq:deadline-inequality} gives $N(\sqrt5)^b\ge1+\theta_*$;
+taking logarithms proves the first assertion. If $\lambda>2$, then
+$N\le N+i$ gives
+\[
+ \sum_i(\sqrt5)^{t_i-C_*(N+i)}
+ \le (\sqrt5)^D N^{1-\lambda/2}\longrightarrow0,
+\]
+a contradiction. Finally, \eqref{eq:main-log-bound} attains $\lambda=1$.
+The supremum $\Lambda$ is not asserted to be attained.
+\end{proof}
+
+\section{Sublinear additional horizons}\label{sec:extra-horizon}
+
+We next allow a common horizon $H_N=2N+j_N$ with nonnegative integers $j_N$. The argument
+requires separate block balance, but still imposes no complement symmetry.
+
+\begin{lemma}[Degree bound from separated run orientations]\label{lem:degree-window}
+Let $N\ge1$ and $j\ge0$ be integers. For a separately balanced block
+$[N,2N-1]$ at horizon $H=2N+j$, let
+$t_i\in[N+i+1,H]$ be per-level deadlines. Put
+$a_i=H-t_i$, $R_i=t_i-N-i-1$, and form the zero-run polynomial
+\[
+ P_+(x)=\sum_{i=0}^{N-1}x^i(1+x)^{a_i}E_i^+(x)
+\]
+as in Theorem~\ref{thm:obstruction}. Then
+\[
+ \deg P_+\le j,\qquad P_+(0)\in\{\pm1\}.
+\]
+\end{lemma}
+\begin{proof}
+The coefficient of $x^\ell$ is the signed count in the zero-run branch
+with $N+\ell$ zeros. A one-run word has at most $H-N=N+j$ zeros.
+Thus every coefficient with $\ell>j$ vanishes by type balance.
+The constant coefficient is the sign of the unique word
+$0^N1^{H-N}$.
+\end{proof}
+
+\begin{lemma}[Elementary polynomial extrapolation]\label{lem:extrapolation}
+Let $0<a<b$, let $j\ge0$ be an integer, and let a real polynomial $P$
+have degree at most $j$.
+Then
+\begin{equation}\label{eq:extrapolation}
+ |P(0)|\le\left(\frac{6b}{b-a}\right)^j
+          \max_{a\le\theta\le b}|P(-\theta)|.
+\end{equation}
+\end{lemma}
+\begin{proof}
+For $j=0$ the assertion is immediate. For $j\ge1$, interpolate at
+$-\theta_k$, where $\theta_k=a+k(b-a)/j$ and $0\le k\le j$.
+The sum of the absolute values at zero of the Lagrange basis polynomials
+is at most
+\[
+ \sum_{k=0}^j\frac{b^j}{((b-a)/j)^j k!(j-k)!}
+ =\left(\frac{2bj}{b-a}\right)^j\frac1{j!}.
+\]
+The elementary inequality $j^j/j!\le3^j$ completes the proof. To verify
+that inequality without an asymptotic factorial estimate, note that
+\[
+ \frac{(m+1)^{m+1}/(m+1)!}{m^m/m!}
+ =\left(1+\frac1m\right)^m
+ \le\sum_{r=0}^m\frac1{r!}<3,
+\]
+using $r!\ge2^{r-1}$ for $r\ge1$; now induct from $m=1$.
+\end{proof}
+
+\begin{theorem}[Robust leading-coefficient obstruction]\label{thm:sublinear-horizon}
+Suppose a universally fair deterministic extractor separately balances
+all sufficiently large dyadic blocks and has common horizons
+$H_N=2N+j_N$, where $j_N/N\to0$ along the powers of two. If
+$T(L)\le CL+D$ for fixed real $C,D$, then $C\ge C_*$.
+\end{theorem}
+\begin{proof}
+Assume $C<C_*$. With the notation of Lemma~\ref{lem:degree-window},
+capacity gives, for $0<\theta<1$,
+\begin{equation}\label{eq:extra-evaluation}
+ |P_+(-\theta)|\le
+ \sum_{i=0}^{N-1}\theta^i(1-\theta)^{H_N-t_i}
+                     (1+\theta)^{t_i-N-i-1}.
+\end{equation}
+Each summand is increasing as a function of $t_i$, because
+$(1+\theta)/(1-\theta)>1$. Replacing $t_i$ by its upper bound
+$C(N+i)+D$ and writing $v=i/N$ bounds the summand by
+\[
+ \frac1{1+\theta}
+ \left(\frac{1+\theta}{1-\theta}\right)^D
+ (1-\theta)^{j_N}\exp\{N G_C(\theta,v)\},
+\]
+where
+\begin{align*}
+ G_C(\theta,v)
+ &=v\log\theta+[2-C(1+v)]\log(1-\theta)\\
+ &\hspace{2em}+[C(1+v)-1-v]\log(1+\theta).
+\end{align*}
+At the critical evaluation point,
+\[
+ G_C(\theta_*,v)=(C-C_*)(1+v)\log\sqrt5<0
+ \qquad(0\le v\le1).
+\]
+Because $G_C$ is affine in $v$, it suffices to check its two endpoint
+values. By continuity, there are $0<a<\theta_*<b<1$ and $\delta>0$
+for which $G_C(\theta,v)\le-\delta$ whenever $a\le\theta\le b$ and
+$0\le v\le1$. The remaining prefactor is bounded on $[a,b]$, and
+$(1-\theta)^{j_N}\le1$. Thus, with a constant $K$ independent of $N$,
+\[
+ \max_{a\le\theta\le b}|P_+(-\theta)|\le KN e^{-\delta N}.
+\]
+Lemma~\ref{lem:degree-window} and Lemma~\ref{lem:extrapolation} imply
+\[
+ 1=|P_+(0)|\le
+ \left(\frac{6b}{b-a}\right)^{j_N}KN e^{-\delta N}.
+\]
+The logarithm of the right side tends to $-\infty$, since
+$j_N=o(N)$ and $\log N=o(N)$. This is the required contradiction.
+\end{proof}
+
+\begin{remark}[Scope of the obstruction]
+Dropping complement symmetry does not circumvent these bounds, nor does
+an $o(N)$ increase of the common block horizon. The arguments do not
+exclude cancellation between different dyadic blocks or separately
+balanced rules with larger additional horizons. In particular, they do
+not prove that $C_*$ is optimal among unrestricted global extractors.
+\end{remark}
+
+\section{Exchangeable sources and conditional fairness}\label{sec:exchangeability}
+
+The finite combinatorial balance is stronger than fairness for independent
+flips. It is useful to state that consequence without any mixture
+representation theorem.
+
+\begin{theorem}[Exchangeable-source extension]\label{thm:exchangeable}
+The deterministic extractor of Theorem~\ref{thm:main} is fair under every
+law on infinite binary sequences whose finite-dimensional distributions
+are invariant under coordinate permutations, provided $L<\infty$ almost
+surely. Its pathwise deadlines are unchanged.
+Moreover, for a dyadic $N\ge2$, let $K_N$ be the number of zeros among
+the first $2N$ inputs. Whenever the conditioning event has positive
+probability,
+\begin{equation}\label{eq:conditional-type-fairness}
+ \Prb(H\mid N\le L<2N,\ K_N=k)=\frac12.
+\end{equation}
+The corresponding statement for $N=1$ follows from the pair $01,10$.
+\end{theorem}
+\begin{proof}
+By construction, each block signing has zero signed probability for all
+i.i.d. biases. Lemma~\ref{lem:type-balance} says that its signed count
+vanishes separately in every Hamming-weight class at horizon $2N$.
+Under an exchangeable finite marginal, all words in a fixed Hamming-weight
+class have the same probability, because a coordinate permutation maps
+any one of them to any other. Hence the two output events have equal
+probability within the intersection of the block and that class. This
+proves \eqref{eq:conditional-type-fairness}.
+Summing over the weight classes gives fairness on each block, and summing
+over blocks gives total fairness because $L<\infty$ almost surely.
+The stopping statement is pathwise and does not depend on the source law.
+\end{proof}
+
+\begin{example}
+Choose a random parameter $P$ supported in $(0,1)$, then conditionally
+on $P$ generate i.i.d. inputs of bias $P$. The resulting source is
+exchangeable and has $L<\infty$ almost surely, so the theorem applies
+although the inputs need not be independent after averaging over $P$.
+\end{example}
+
+\begin{remark}
+The condition on constant sequences is necessary for almost-sure
+termination of this rule. Also, \eqref{eq:conditional-type-fairness} does
+not assert fairness conditional on each individual value of $L$, nor
+independence of the output from the stopping time.
+\end{remark}
+
+\section{Why dyadic blocks occur at horizon \texorpdfstring{$2N$}{2N}}\label{sec:dyadic-necessity}
+
+Here $N$ may be any positive integer, not necessarily a power of two.
+
+\begin{theorem}[Dyadic necessity and sufficiency]\label{thm:dyadic-iff}
+The set of $2N$-letter words whose initial run length lies in $[N,2N-1]$
+admits a deterministic signing that is balanced for every bias if and
+only if $N$ is a power of two.
+\end{theorem}
+\begin{proof}
+For $0\le\ell<N$, the number of zero-run words with $N+\ell$ zeros is
+\[
+ \sum_{i=0}^{N-1}\binom{N-1-i}{\ell-i}=\binom N\ell,
+\]
+where out-of-range binomial coefficients are zero. This follows by
+extracting coefficients from
+\[
+ \sum_{i=0}^{N-1}x^i(1+x)^{N-1-i}=(1+x)^N-x^N.
+\]
+For $1\le\ell<N$, these are all the words with that zero count; the
+one-run branch contributes only to lower counts. The reflected classes
+have the same cardinalities. The central class contains exactly the two
+words $0^N1^N$ and $1^N0^N$.
+
+By Lemma~\ref{lem:type-balance}, a fair deterministic split exists
+exactly when every intermediate coefficient $\binom N\ell$ is even.
+If $N$ is a power of two, repeated squaring over $\mathbb F_2$ gives
+$(1+x)^N=1+x^N$, so all such coefficients are even. Conversely, writing
+$N=\sum_j\epsilon_j2^j$ in binary gives
+\[
+ (1+x)^N=\prod_{j:\epsilon_j=1}(1+x^{2^j})\quad\text{in }\mathbb F_2[x].
+\]
+If two or more binary digits are nonzero, the factor with the least
+exponent supplies a nonzero coefficient strictly between degrees zero
+and $N$. Thus $N$ must be a power of two. When it is, split every finite
+Hamming-weight class into two equal parts; reading the full horizon
+realizes such a signing.
+\end{proof}
+
+\begin{corollary}[No fixed two-bit output in one such block]\label{cor:no-two-bit}
+At common horizon $2N$, no deterministic rule on $[N,2N-1]$ can have four
+outputs with equal conditional probabilities within the block for every
+bias. In particular, the one-bit construction cannot be replaced by two
+uniform output bits per block without changing these requirements.
+\end{corollary}
+\begin{proof}
+Equal output probabilities for every bias force equal counts in each
+Hamming-weight class, by applying the polynomial argument to each pair
+of outputs. The central class has two words and cannot be divided into
+four equal integer parts.
+\end{proof}
+
+\section*{Reproducibility and computational scope}
+\addcontentsline{toc}{section}{Reproducibility and computational scope}
+
+The package contains this source, the compiled PDF,
+\texttt{verify\_glazer\_critical.py}, the finite packet arrays in
+\texttt{certificates/finite\_blocks.json}, and the recorded verification
+output. The six arrays with $N<128$ are the finite witnesses used in
+Section~\ref{sec:finite}. Larger test blocks are supplementary checks;
+the all-$N$ theorem is the mathematical argument of
+Sections~\ref{sec:profile}--\ref{sec:finite}, not an extrapolation from
+those tests.
+
+Run the required finite checks and their independent witness checker by
+\begin{verbatim}
+python scripts/verify_glazer_critical.py
+python scripts/verify_glazer_critical.py \
+  --check-certificate scripts/certificates/finite_blocks.json
+\end{verbatim}
+The recorded extended run is reproduced by
+\begin{verbatim}
+python scripts/verify_glazer_critical.py --extra 128 256 512 1024 \
+  --export scripts/certificates/finite_blocks.json
+\end{verbatim}
+Do not pass Python's \texttt{-O} flag: assertions are part of the checker.
+All mathematical comparisons use exact integer or rational arithmetic;
+decimal displays are produced only after the corresponding exact checks.
+A numerical certificate is not, by itself, a proof checked by a
+proof-assistant kernel.
+
+\paragraph{Character expansion.}
+For $c_r=[x^r](1-x)^t(1+x)^{R-t}$, the verifier uses
+\[
+ c_0=1,\quad c_{-1}=0,\quad
+ (r+1)c_{r+1}=(R-2t)c_r-(R-r+1)c_{r-1}.
+\]
+This follows by differentiating the product and clearing $1-x^2$.
+The script checks the recurrence independently against direct polynomial
+multiplication for $0\le t\le R\le40$.
+
+\paragraph{Exact large-block polynomial checking.}
+The required finite certificates are checked coefficient by coefficient.
+For supplementary blocks above $128$, the script may instead use the
+following exact test. If an integer polynomial $Q$ has each coefficient
+bounded in magnitude by $M$ and $B>M+1$ is an integer, then
+\[
+ Q(B)=0\quad\Longrightarrow\quad Q=0.
+\]
+Indeed, a nonzero leading integer coefficient has magnitude at least
+one, and its contribution dominates all lower terms, whose total
+magnitude is at most $M(B^d-1)/(B-1)<B^d$. For the difference from the
+target packet identity, the script uses the explicit bound
+\[
+ M=|\text{target}|+\sum_i2^{a_i}\sum_r|c_{i,r}|.
+\]
+It clears the known denominator before checking a rational center.
+This is an injective integer evaluation, not a probabilistic fingerprint
+or a congruence modulo a chosen prime.
+
+\begin{thebibliography}{9}
+\bibitem{vonNeumann1951}
+J.~von Neumann,
+\newblock Various techniques used in connection with random digits,
+\newblock in A.~S. Householder, G.~E. Forsythe, and H.~H. Germond (eds.),
+\emph{Monte Carlo Method}, National Bureau of Standards Applied Mathematics
+Series 12, U.S. Government Printing Office, Washington, DC, 1951,
+pp.~36--38.
+\end{thebibliography}
+
+\end{document}

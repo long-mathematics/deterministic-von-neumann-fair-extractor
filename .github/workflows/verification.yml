@@ -1,0 +1,64 @@
+name: Build paper and verify exact certificates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verification-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify exact checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Verify canonical script digest
+        run: echo "07801d62aedf91b87e122bd96f53a9bd450d64dd4e265caaff364f3da0dced61  scripts/verify_glazer_critical.py" | sha256sum -c -
+      - name: Reconstruct required finite blocks
+        run: python3 scripts/verify_glazer_critical.py
+      - name: Check supplied finite certificates independently
+        run: |
+          python3 scripts/verify_glazer_critical.py \
+            --check-certificate scripts/certificates/finite_blocks.json \
+            > /tmp/certificate_check.txt
+          diff -u scripts/finite_certificate_check.txt /tmp/certificate_check.txt
+      - name: Reproduce extended exact run
+        run: |
+          python3 scripts/verify_glazer_critical.py --extra 128 256 512 1024 \
+            --export /tmp/finite_blocks.json > /tmp/verification_output.txt
+          diff -u scripts/verification_output.txt /tmp/verification_output.txt
+          cmp scripts/certificates/finite_blocks.json /tmp/finite_blocks.json
+      - name: Run supplementary checks
+        run: |
+          python3 scripts/supplementary_checks.py > /tmp/supplementary_output.txt
+          diff -u scripts/supplementary_verification_output.txt /tmp/supplementary_output.txt
+
+  paper:
+    name: Build manuscript
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends latexmk texlive-latex-extra texlive-fonts-recommended lmodern
+      - name: Compile manuscript
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build deterministic_von_neumann_fair_extractor.tex
+          if grep -E 'undefined|LaTeX Warning:|Overfull' build/deterministic_von_neumann_fair_extractor.log; then
+            exit 1
+          fi

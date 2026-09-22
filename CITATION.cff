@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "Please cite the accompanying research draft."
+title: "A Critical Linear Bound with Logarithmic Savings for Glazer's Time-Limited Fair-Coin Problem"
+type: article
+authors:
+  - family-names: Long
+    given-names: Christopher D.
+date-released: 2026-09-20
+url: https://github.com/long-mathematics/deterministic-von-neumann-fair-extractor
+repository-code: https://github.com/long-mathematics/deterministic-von-neumann-fair-extractor
+license: MIT
