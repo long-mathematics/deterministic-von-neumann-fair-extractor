@@ -135,11 +135,36 @@ bias $p\in(0,1)$.
 \end{theorem}
 
 The classical assignments $01\mapsto H$ and $10\mapsto T$ treat $L=1$;
-they go back to von Neumann~\cite{vonNeumann1951}. For $L\ge2$ we balance
-the events $N\le L<2N$ individually. This is a sufficient construction
-principle, not an assumption on all possible fair extractors.
-Section~\ref{sec:optimality} proves optimality of the leading coefficient
-within the separately balanced horizon-$2N$ class, and
+they go back to von Neumann~\cite{vonNeumann1951}. A substantial literature
+studies more efficient extraction from a source of unknown bias, typically
+measuring expected source cost, block efficiency, or asymptotic entropy rate;
+see, for example, Hoeffding--Simons~\cite{HoeffdingSimons1970},
+Elias~\cite{Elias1972}, Stout--Warren~\cite{StoutWarren1984},
+Peres~\cite{Peres1992}, Juels--Jakobsson--Shriver--Hillyer
+\cite{JuelsEtAl2000}, and Pae--Loui~\cite{PaeLoui2005}. The efficiency
+criterion here is different: it is a pathwise worst-case deadline indexed by
+the observed initial-run length, and is required uniformly over the unknown
+bias.
+
+The particular time-limited problem considered here was posed by Elliot
+Glazer in an online discussion in August 2024, initially for a loaded
+six-sided die, together with the question of the best linear efficiency
+constant~\cite{GlazerPuzzling2024}. In that discussion the symbol $n$
+denotes the index of the first change, so in the present notation $n=L+1$.
+For the binary case, Charles Wang gave a $2n-2=2L$ construction and sketched
+a $7n/4$ improvement~\cite{WangPuzzling2024}. Stan Wagon subsequently
+reported using the problem as a Macalester Problem of the Week; several
+readers found a recursive solution, and Wagon and Peter Winkler found a
+formulaic construction. Wagon's posted account gives a $2n-3=2L-1$
+worst-case bound for the binary problem~\cite{WagonPuzzling2025}. Glazer
+later posed the coin version as Problem 12592 in the \emph{American
+Mathematical Monthly}, using $n$ for the initial-run length and asking for
+the bounds $2n$ and $\max\{2,2n-1\}$~\cite{GlazerAMM2026}.
+
+For $L\ge2$ we balance the events $N\le L<2N$ individually. This is a
+sufficient construction principle, not an assumption on all possible fair
+extractors. Section~\ref{sec:optimality} proves optimality of the leading
+coefficient within the separately balanced horizon-$2N$ class, and
 Section~\ref{sec:extra-horizon} treats sublinear additional horizons.
 Neither result asserts unrestricted optimality when different blocks can
 cancel each other's imbalance.
@@ -1453,7 +1478,82 @@ It clears the known denominator before checking a rational center.
 This is an injective integer evaluation, not a probabilistic fingerprint
 or a congruence modulo a chosen prime.
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
+
+\bibitem{GlazerPuzzling2024}
+E.~Glazer,
+\newblock Extracting a fair coin flip from a biased die, with a time limit,
+\newblock \emph{Puzzling Stack Exchange}, August 8, 2024,
+\newblock \href{https://puzzling.stackexchange.com/questions/127763/extracting-a-fair-coin-flip-from-a-biased-die-with-a-time-limit}
+{puzzling.stackexchange.com/questions/127763}.
+
+\bibitem{WangPuzzling2024}
+C.~Wang,
+\newblock Answer to Glazer's ``Extracting a fair coin flip from a biased die, with a time limit,''
+\newblock \emph{Puzzling Stack Exchange}, August 8, 2024,
+\newblock \href{https://puzzling.stackexchange.com/questions/127763/extracting-a-fair-coin-flip-from-a-biased-die-with-a-time-limit}
+{puzzling.stackexchange.com/questions/127763}.
+
+\bibitem{WagonPuzzling2025}
+S.~Wagon,
+\newblock Answer to Glazer's ``Extracting a fair coin flip from a biased die, with a time limit,''
+\newblock \emph{Puzzling Stack Exchange}, April 26, 2025,
+\newblock with a formulaic construction attributed there to S.~Wagon and P.~Winkler,
+\newblock \href{https://puzzling.stackexchange.com/questions/127763/extracting-a-fair-coin-flip-from-a-biased-die-with-a-time-limit}
+{puzzling.stackexchange.com/questions/127763}.
+
+\bibitem{GlazerAMM2026}
+E.~Glazer,
+\newblock Problem 12592,
+\newblock in D.~H. Ullman, D.~J. Velleman, S.~Wagon, and D.~B. West,
+``Problems and Solutions,''
+\emph{Amer. Math. Monthly} \textbf{133} (2026), no.~3, 290--300, p.~291,
+\newblock \href{https://doi.org/10.1080/00029890.2026.2599721}
+{doi:10.1080/00029890.2026.2599721}.
+
+\bibitem{HoeffdingSimons1970}
+W.~Hoeffding and G.~Simons,
+\newblock Unbiased coin tossing with a biased coin,
+\newblock \emph{Ann. Math. Statist.} \textbf{41} (1970), no.~2, 341--352,
+\newblock \href{https://doi.org/10.1214/aoms/1177697074}
+{doi:10.1214/aoms/1177697074}.
+
+\bibitem{Elias1972}
+P.~Elias,
+\newblock The efficient construction of an unbiased random sequence,
+\newblock \emph{Ann. Math. Statist.} \textbf{43} (1972), no.~3, 865--870,
+\newblock \href{https://doi.org/10.1214/aoms/1177692552}
+{doi:10.1214/aoms/1177692552}.
+
+\bibitem{StoutWarren1984}
+Q.~F. Stout and B.~Warren,
+\newblock Tree algorithms for unbiased coin tossing with a biased coin,
+\newblock \emph{Ann. Probab.} \textbf{12} (1984), no.~1, 212--222,
+\newblock \href{https://doi.org/10.1214/aop/1176993384}
+{doi:10.1214/aop/1176993384}.
+
+\bibitem{Peres1992}
+Y.~Peres,
+\newblock Iterating von Neumann's procedure for extracting random bits,
+\newblock \emph{Ann. Statist.} \textbf{20} (1992), no.~1, 590--597,
+\newblock \href{https://doi.org/10.1214/aos/1176348543}
+{doi:10.1214/aos/1176348543}.
+
+\bibitem{JuelsEtAl2000}
+A.~Juels, M.~Jakobsson, E.~A.~M. Shriver, and B.~K. Hillyer,
+\newblock How to turn loaded dice into fair coins,
+\newblock \emph{IEEE Trans. Inform. Theory} \textbf{46} (2000), no.~3, 911--921,
+\newblock \href{https://doi.org/10.1109/18.841170}
+{doi:10.1109/18.841170}.
+
+\bibitem{PaeLoui2005}
+S.-I.~Pae and M.~C. Loui,
+\newblock Optimal random number generation from a biased coin,
+\newblock in \emph{Proceedings of the Sixteenth Annual ACM--SIAM Symposium
+on Discrete Algorithms (SODA 2005)}, 1079--1088,
+\newblock \href{https://doi.org/10.1145/1070432.1070587}
+{doi:10.1145/1070432.1070587}.
+
 \bibitem{vonNeumann1951}
 J.~von Neumann,
 \newblock Various techniques used in connection with random digits,
@@ -1461,6 +1561,7 @@ J.~von Neumann,
 \emph{Monte Carlo Method}, National Bureau of Standards Applied Mathematics
 Series 12, U.S. Government Printing Office, Washington, DC, 1951,
 pp.~36--38.
+
 \end{thebibliography}
 
 \end{document}
