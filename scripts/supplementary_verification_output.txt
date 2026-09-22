@@ -1,0 +1,9 @@
+Independent finite-witness checker: all six blocks passed
+Deterministic prefix realization N=2: 6 words, all signed type counts zero
+Deterministic prefix realization N=4: 30 words, all signed type counts zero
+Deterministic prefix realization N=8: 510 words, all signed type counts zero
+Deterministic prefix realization N=16: 131070 words, all signed type counts zero
+Fair-coin mixture identity and modal square bound: 132 exact rational tests
+Dyadic parity criterion: N=1,...,64 checked
+Large-block radix checker rejects a deliberate nonzero polynomial
+All independent supplementary checks passed.
